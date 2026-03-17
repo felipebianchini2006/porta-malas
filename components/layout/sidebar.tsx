@@ -10,6 +10,14 @@ export async function Sidebar() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const { data: currentUser } = await supabase
+    .from("usuarios")
+    .select("role")
+    .eq("id", user?.id ?? "")
+    .single()
+
+  const isAdmin = currentUser?.role === "admin"
+
   return (
     <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-slate-200 flex flex-col z-30">
       {/* Logo */}
@@ -21,7 +29,7 @@ export async function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <SidebarNav />
+      <SidebarNav isAdmin={isAdmin} />
 
       {/* User section */}
       <div className="px-4 py-4 border-t border-slate-100 space-y-2">

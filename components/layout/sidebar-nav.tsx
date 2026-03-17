@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, PackagePlus, PackageCheck, BarChart3 } from "lucide-react"
+import { LayoutDashboard, PackagePlus, PackageCheck, BarChart3, Users } from "lucide-react"
 
 const navItems = [
   { label: "Painel", href: "/dashboard", icon: LayoutDashboard },
@@ -12,12 +12,22 @@ const navItems = [
   { label: "Relatório", href: "/relatorio", icon: BarChart3 },
 ]
 
-export function SidebarNav() {
+const adminNavItems = [
+  { label: "Usuários", href: "/admin/usuarios", icon: Users },
+]
+
+interface SidebarNavProps {
+  isAdmin?: boolean
+}
+
+export function SidebarNav({ isAdmin = false }: SidebarNavProps) {
   const pathname = usePathname()
+
+  const allItems = isAdmin ? [...navItems, ...adminNavItems] : navItems
 
   return (
     <nav className="flex-1 px-3 py-4 space-y-1">
-      {navItems.map((item) => {
+      {allItems.map((item) => {
         const Icon = item.icon
         const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
         return (

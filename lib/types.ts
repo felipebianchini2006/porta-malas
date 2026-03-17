@@ -5,6 +5,7 @@ export type StatusMala = "em_guarda" | "retirada"
 export interface Usuario {
   id: string
   nome: string
+  email?: string | null
   role: UserRole
   ativo: boolean
   created_at: string

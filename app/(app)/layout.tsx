@@ -12,6 +12,14 @@ export default async function AppLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
+  const { data: currentUser } = await supabase
+    .from("usuarios")
+    .select("role")
+    .eq("id", user?.id ?? "")
+    .single()
+
+  const isAdmin = currentUser?.role === "admin"
+
   return (
     <div className="flex h-screen">
       {/* Desktop sidebar — hidden on mobile */}
@@ -23,7 +31,7 @@ export default async function AppLayout({
       <div className="flex-1 flex flex-col md:ml-60 overflow-hidden">
         {/* Mobile top bar with hamburger */}
         <div className="flex md:hidden items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0">
-          <MobileSidebar userEmail={user?.email} />
+          <MobileSidebar userEmail={user?.email} isAdmin={isAdmin} />
           <span className="font-semibold text-violet-700 tracking-tight">Guarda-Malas</span>
         </div>
 

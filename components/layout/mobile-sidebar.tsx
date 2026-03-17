@@ -8,9 +8,10 @@ import { logout } from "@/lib/actions/auth"
 
 interface MobileSidebarProps {
   userEmail?: string | null
+  isAdmin?: boolean
 }
 
-export function MobileSidebar({ userEmail }: MobileSidebarProps) {
+export function MobileSidebar({ userEmail, isAdmin = false }: MobileSidebarProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -30,7 +31,7 @@ export function MobileSidebar({ userEmail }: MobileSidebarProps) {
           </div>
 
           {/* Navigation */}
-          <SidebarNav />
+          <SidebarNav isAdmin={isAdmin} />
 
           {/* User section */}
           <div className="px-4 py-4 border-t border-slate-100 space-y-2">
