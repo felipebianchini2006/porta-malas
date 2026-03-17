@@ -33,13 +33,32 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user && !request.nextUrl.pathname.startsWith("/login")) {
+  const isLoginPage = request.nextUrl.pathname.startsWith("/login")
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api/")
+
+  if (!user && !isLoginPage) {
     const url = request.nextUrl.clone()
     url.pathname = "/login"
     return NextResponse.redirect(url)
   }
 
-  if (user && request.nextUrl.pathname === "/login") {
+  if (user && !isLoginPage && !isApiRoute) {
+    const { data: usuario } = await supabase
+      .from("usuarios")
+      .select("ativo")
+      .eq("id", user.id)
+      .single()
+
+    if (usuario && usuario.ativo === false) {
+      await supabase.auth.signOut()
+      const url = request.nextUrl.clone()
+      url.pathname = "/login"
+      url.searchParams.set("motivo", "conta-desativada")
+      return NextResponse.redirect(url)
+    }
+  }
+
+  if (user && isLoginPage) {
     const url = request.nextUrl.clone()
     url.pathname = "/dashboard"
     return NextResponse.redirect(url)

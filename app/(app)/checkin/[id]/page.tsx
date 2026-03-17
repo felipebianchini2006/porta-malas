@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { linkCheckin } from "@/lib/utils/whatsapp"
 import { formatarTelefone } from "@/lib/utils/protocolo"
-import { Atendimento } from "@/lib/types"
+import { Atendimento, Mala, FotoMala } from "@/lib/types"
+import { SecaoFotos } from "@/components/checkin/secao-fotos"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -19,7 +20,7 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
 
   const { data, error } = await supabase
     .from("atendimentos")
-    .select("*, malas(*)")
+    .select("*, malas(*, fotos_malas(*))")
     .eq("id", id)
     .single()
 
@@ -27,7 +28,9 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
     notFound()
   }
 
+  type MalaComFotos = Mala & { fotos_malas: FotoMala[] }
   const atendimento = data as Atendimento
+  const malasComFotos = ((atendimento.malas ?? []) as unknown) as MalaComFotos[]
 
   const horario = new Date(atendimento.data_checkin).toLocaleString("pt-BR", {
     day: "2-digit",
@@ -104,31 +107,22 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      {/* Malas */}
-      {atendimento.malas && atendimento.malas.length > 0 && (
+      {/* Malas + Fotos */}
+      {malasComFotos.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Malas ({atendimento.malas.length})
+              Malas ({malasComFotos.length}) — Fotos
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            {atendimento.malas.map((mala, index) => (
-              <div
-                key={mala.id}
-                className="flex items-center gap-3 p-2 rounded-md bg-slate-50 border text-sm"
-              >
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold shrink-0">
-                  {index + 1}
-                </div>
-                <div>
-                  <span className="font-medium font-mono">{mala.identificacao_interna}</span>
-                  {mala.descricao && (
-                    <span className="text-muted-foreground ml-2">— {mala.descricao}</span>
-                  )}
-                </div>
-              </div>
-            ))}
+          <CardContent>
+            <SecaoFotos
+              atendimentoId={atendimento.id}
+              malas={malasComFotos.map((m) => ({
+                ...m,
+                fotos: m.fotos_malas ?? [],
+              }))}
+            />
           </CardContent>
         </Card>
       )}

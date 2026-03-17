@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { login } from "@/lib/actions/auth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,7 +10,12 @@ import { Button } from "@/components/ui/button"
 import { Briefcase } from "lucide-react"
 
 export function LoginForm() {
-  const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const contaDesativada = searchParams.get("motivo") === "conta-desativada"
+
+  const [error, setError] = useState<string | null>(
+    contaDesativada ? "Sua conta foi desativada. Contate o administrador." : null
+  )
   const [pending, setPending] = useState(false)
 
   async function handleSubmit(formData: FormData) {
