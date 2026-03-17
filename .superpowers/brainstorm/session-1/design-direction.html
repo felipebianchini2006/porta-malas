@@ -1,0 +1,140 @@
+<h2>Qual direção visual combina mais com o sistema?</h2>
+<p class="subtitle">Guarda Malas — Sistema Operacional. Escolha o estilo que você prefere como base.</p>
+
+<div class="cards">
+
+  <!-- Option A: Operacional Moderno -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a; padding:16px; font-family:system-ui; border-radius:6px 6px 0 0;">
+      <div style="display:flex; gap:8px; margin-bottom:10px;">
+        <div style="background:#1e293b; border-radius:6px; padding:6px 12px; color:#94a3b8; font-size:11px;">Check-in</div>
+        <div style="background:#3b82f6; border-radius:6px; padding:6px 12px; color:#fff; font-size:11px; font-weight:600;">Painel</div>
+        <div style="background:#1e293b; border-radius:6px; padding:6px 12px; color:#94a3b8; font-size:11px;">Retirada</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px;">
+        <div style="background:#1e293b; border-radius:8px; padding:10px; text-align:center;">
+          <div style="color:#3b82f6; font-size:20px; font-weight:700;">42</div>
+          <div style="color:#64748b; font-size:10px; margin-top:2px;">Em Guarda</div>
+        </div>
+        <div style="background:#1e293b; border-radius:8px; padding:10px; text-align:center;">
+          <div style="color:#10b981; font-size:20px; font-weight:700;">18</div>
+          <div style="color:#64748b; font-size:10px; margin-top:2px;">Entradas Hoje</div>
+        </div>
+        <div style="background:#1e293b; border-radius:8px; padding:10px; text-align:center;">
+          <div style="color:#f59e0b; font-size:20px; font-weight:700;">6</div>
+          <div style="color:#64748b; font-size:10px; margin-top:2px;">Retiradas Hoje</div>
+        </div>
+      </div>
+      <div style="background:#1e293b; border-radius:8px; padding:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="color:#94a3b8; font-size:10px; font-weight:600; letter-spacing:0.5px;">BAGAGENS ATIVAS</span>
+          <span style="background:#3b82f6; color:#fff; border-radius:4px; padding:2px 8px; font-size:10px;">+Novo</span>
+        </div>
+        <div style="color:#e2e8f0; font-size:11px; padding:6px 0; border-bottom:1px solid #334155;">
+          <span style="background:#334155; border-radius:3px; padding:1px 5px; color:#93c5fd; font-size:10px; margin-right:6px;">GM-0042</span>João Silva · 2 malas
+        </div>
+        <div style="color:#e2e8f0; font-size:11px; padding:6px 0;">
+          <span style="background:#334155; border-radius:3px; padding:1px 5px; color:#93c5fd; font-size:10px; margin-right:6px;">GM-0041</span>Maria Souza · 1 mala
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Dark Operacional</h3>
+      <p>Tema escuro com azul como acento. Alta concentração de informação, ideal para uso noturno ou em ambientes com pouca luz. Visual profissional e focado.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Moderno Claro -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc; padding:16px; font-family:system-ui; border-radius:6px 6px 0 0;">
+      <div style="background:#fff; border-radius:12px; padding:12px; box-shadow:0 1px 6px rgba(0,0,0,0.08); margin-bottom:10px;">
+        <div style="color:#64748b; font-size:10px; font-weight:600; letter-spacing:0.5px; margin-bottom:8px;">PAINEL DE OCUPAÇÃO</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+          <div style="text-align:center;">
+            <div style="color:#6366f1; font-size:22px; font-weight:700;">42</div>
+            <div style="color:#94a3b8; font-size:9px;">Em Guarda</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="color:#22c55e; font-size:22px; font-weight:700;">18</div>
+            <div style="color:#94a3b8; font-size:9px;">Entradas</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="color:#f97316; font-size:22px; font-weight:700;">6</div>
+            <div style="color:#94a3b8; font-size:9px;">Retiradas</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+        <button style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; border-radius:10px; padding:12px; font-size:11px; font-weight:600; cursor:pointer;">+ Novo Check-in</button>
+        <button style="background:#fff; color:#6366f1; border:2px solid #e0e7ff; border-radius:10px; padding:12px; font-size:11px; font-weight:600; cursor:pointer;">Buscar Bagagem</button>
+      </div>
+      <div style="background:#fff; border-radius:10px; padding:10px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="color:#64748b; font-size:9px; font-weight:600; margin-bottom:6px;">RECENTES</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #f1f5f9;">
+          <div>
+            <span style="background:#ede9fe; color:#7c3aed; border-radius:4px; padding:1px 6px; font-size:9px; font-weight:600;">GM-0042</span>
+            <span style="color:#1e293b; font-size:10px; margin-left:6px;">João Silva</span>
+          </div>
+          <span style="color:#22c55e; font-size:9px; font-weight:600;">● Ativo</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0;">
+          <div>
+            <span style="background:#ede9fe; color:#7c3aed; border-radius:4px; padding:1px 6px; font-size:9px; font-weight:600;">GM-0041</span>
+            <span style="color:#1e293b; font-size:10px; margin-left:6px;">Maria Souza</span>
+          </div>
+          <span style="color:#22c55e; font-size:9px; font-weight:600;">● Ativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Claro Moderno</h3>
+      <p>Tema claro com roxo/índigo como acento. Cards com sombra suave, bordas arredondadas, botões com gradiente. Visual moderno e agradável para uso diurno.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Neutro Profissional -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f1f5f9; padding:16px; font-family:system-ui; border-radius:6px 6px 0 0;">
+      <div style="display:flex; align-items:center; margin-bottom:10px; gap:8px;">
+        <div style="width:28px; height:28px; background:#0ea5e9; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px;">🧳</div>
+        <span style="color:#0f172a; font-weight:700; font-size:12px;">GuardaMalas</span>
+        <div style="margin-left:auto; display:flex; gap:6px;">
+          <div style="width:22px; height:22px; background:#e2e8f0; border-radius:50%;"></div>
+        </div>
+      </div>
+      <div style="background:#fff; border-radius:8px; padding:10px; margin-bottom:8px; border-left:3px solid #0ea5e9;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="color:#475569; font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Total em Guarda</div>
+            <div style="color:#0f172a; font-size:24px; font-weight:700;">42 <span style="font-size:11px; color:#94a3b8; font-weight:400;">malas</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="background:#f0f9ff; color:#0ea5e9; border-radius:6px; padding:4px 8px; font-size:10px; font-weight:600;">Hoje: 18 entradas</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#fff; border-radius:8px; padding:10px; margin-bottom:8px;">
+        <div style="color:#475569; font-size:9px; font-weight:600; text-transform:uppercase; margin-bottom:6px;">Últimas bagagens</div>
+        <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #f8fafc;">
+          <div style="font-size:10px; color:#1e293b;"><strong style="color:#0ea5e9;">GM-0042</strong> · João Silva · 2 vol.</div>
+          <div style="background:#dcfce7; color:#16a34a; border-radius:4px; padding:1px 6px; font-size:9px;">Ativo</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:4px 0;">
+          <div style="font-size:10px; color:#1e293b;"><strong style="color:#0ea5e9;">GM-0041</strong> · Maria Souza · 1 vol.</div>
+          <div style="background:#dcfce7; color:#16a34a; border-radius:4px; padding:1px 6px; font-size:9px;">Ativo</div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+        <button style="background:#0ea5e9; color:#fff; border:none; border-radius:6px; padding:9px; font-size:10px; font-weight:600;">+ Check-in</button>
+        <button style="background:#fff; color:#475569; border:1px solid #e2e8f0; border-radius:6px; padding:9px; font-size:10px; font-weight:600;">Retirada</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Neutro Sky Blue</h3>
+      <p>Tema claro com azul céu como acento. Hierarquia clara, sidebar branca, toques de cor apenas nos elementos importantes. Limpo, profissional e fácil de ler.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px; text-align:center;">Clique na opção que mais te agrada ou responda no terminal com A, B ou C</p>
