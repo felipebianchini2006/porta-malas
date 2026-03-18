@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 
 export interface UsuarioComEmail {
@@ -10,6 +11,54 @@ export interface UsuarioComEmail {
   role: "admin" | "operador"
   ativo: boolean
   created_at: string
+}
+
+export async function criarUsuario(
+  nome: string,
+  email: string,
+  senha: string,
+  role: "admin" | "operador"
+): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: "Não autenticado" }
+
+  const { data: currentUser } = await supabase
+    .from("usuarios")
+    .select("role")
+    .eq("id", user.id)
+    .single()
+
+  if (currentUser?.role !== "admin") return { error: "Sem permissão" }
+
+  const adminClient = createAdminClient()
+  const { data: newUser, error: authError } = await adminClient.auth.admin.createUser({
+    email,
+    password: senha,
+    email_confirm: true,
+  })
+
+  if (authError || !newUser.user) {
+    return { error: authError?.message ?? "Erro ao criar usuário" }
+  }
+
+  const { error: dbError } = await supabase.from("usuarios").upsert({
+    id: newUser.user.id,
+    nome,
+    email,
+    role,
+    ativo: true,
+  })
+
+  if (dbError) {
+    return { error: dbError.message }
+  }
+
+  revalidatePath("/admin/usuarios")
+  return { success: true }
 }
 
 export async function listarUsuarios(): Promise<UsuarioComEmail[]> {

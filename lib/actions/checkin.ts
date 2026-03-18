@@ -7,6 +7,7 @@ export interface MalaInput {
   identificacao_interna: string
   descricao?: string
   observacoes?: string
+  categoria_id?: string | null
 }
 
 export interface CheckinInput {
@@ -14,6 +15,7 @@ export interface CheckinInput {
   cliente_telefone: string
   observacoes?: string
   valor_cobrado?: number
+  parceiro_id?: string | null
   malas: MalaInput[]
 }
 
@@ -53,6 +55,7 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
       cliente_telefone: input.cliente_telefone.replace(/\D/g, ""),
       observacoes: input.observacoes || null,
       valor_cobrado: input.valor_cobrado || null,
+      parceiro_id: input.parceiro_id ?? null,
       operador_checkin_id: user.id,
       status: "ativo",
     })

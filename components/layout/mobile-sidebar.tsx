@@ -1,6 +1,6 @@
 "use client"
 
-import { Briefcase, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { SidebarNav } from "./sidebar-nav"
@@ -24,10 +24,10 @@ export function MobileSidebar({ userEmail, isAdmin = false }: MobileSidebarProps
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-100">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-100">
-              <Briefcase className="w-4 h-4 text-violet-600" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100">
+              <span className="text-lg leading-none">🧳</span>
             </div>
-            <span className="font-semibold text-violet-700 tracking-tight">Guarda-Malas</span>
+            <span className="font-semibold text-amber-700 tracking-tight">Bag Point</span>
           </div>
 
           {/* Navigation */}

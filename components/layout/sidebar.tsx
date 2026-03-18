@@ -1,4 +1,3 @@
-import { Briefcase } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { SidebarNav } from "./sidebar-nav"
 import { logout } from "@/lib/actions/auth"
@@ -22,10 +21,10 @@ export async function Sidebar() {
     <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-slate-200 flex flex-col z-30">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-100">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-100">
-          <Briefcase className="w-4 h-4 text-violet-600" />
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100">
+          <span className="text-lg leading-none">🧳</span>
         </div>
-        <span className="font-semibold text-violet-700 tracking-tight">Guarda-Malas</span>
+        <span className="font-semibold text-amber-700 tracking-tight">Bag Point</span>
       </div>
 
       {/* Navigation */}

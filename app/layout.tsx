@@ -5,8 +5,8 @@ import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "Guarda-Malas",
-  description: "Sistema de gerenciamento de guarda-volumes",
+  title: "Bag Point",
+  description: "Sistema de guarda-bagagens Bag Point",
 }
 
 export default function RootLayout({

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, PackagePlus, PackageCheck, BarChart3, Users } from "lucide-react"
+import { LayoutDashboard, PackagePlus, PackageCheck, BarChart3, Users, Handshake } from "lucide-react"
 
 const navItems = [
   { label: "Painel", href: "/dashboard", icon: LayoutDashboard },
@@ -13,6 +13,7 @@ const navItems = [
 ]
 
 const adminNavItems = [
+  { label: "Parceiros", href: "/relatorio/parceiros", icon: Handshake },
   { label: "Usuários", href: "/admin/usuarios", icon: Users },
 ]
 
@@ -37,8 +38,8 @@ export function SidebarNav({ isAdmin = false }: SidebarNavProps) {
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
               isActive
-                ? "bg-indigo-50 text-indigo-700 font-medium"
-                : "text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+                ? "bg-amber-50 text-amber-700 font-medium"
+                : "text-slate-600 hover:bg-amber-50 hover:text-amber-700"
             )}
           >
             <Icon className="w-4 h-4 flex-shrink-0" />

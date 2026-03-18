@@ -32,7 +32,7 @@ export default async function AppLayout({
         {/* Mobile top bar with hamburger */}
         <div className="flex md:hidden items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0">
           <MobileSidebar userEmail={user?.email} isAdmin={isAdmin} />
-          <span className="font-semibold text-violet-700 tracking-tight">Guarda-Malas</span>
+          <span className="font-semibold text-amber-700 tracking-tight">Bag Point</span>
         </div>
 
         <main className="flex-1 overflow-auto p-6 bg-slate-50">

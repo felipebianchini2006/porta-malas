@@ -1,4 +1,13 @@
 export type UserRole = "admin" | "operador"
+export type TipoParceiro = "Hotel" | "Airbnb" | "Rua" | "Outro"
+
+export interface Parceiro {
+  id: string
+  nome: string
+  tipo: TipoParceiro
+  ativo: boolean
+  created_at: string
+}
 export type StatusAtendimento = "ativo" | "retirado"
 export type StatusMala = "em_guarda" | "retirada"
 
@@ -24,10 +33,12 @@ export interface Atendimento {
   data_checkin: string
   data_retirada: string | null
   created_at: string
+  parceiro_id?: string | null
   // relations
   operador_checkin?: Usuario
   operador_retirada?: Usuario
   malas?: Mala[]
+  parceiro?: Parceiro
 }
 
 export interface Mala {

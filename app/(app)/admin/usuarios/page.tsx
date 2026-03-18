@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { listarUsuarios } from "@/lib/actions/usuarios"
 import { UsuariosTable } from "@/components/admin/usuarios-table"
+import { NovoUsuarioDialog } from "@/components/admin/novo-usuario-dialog"
 
 export default async function AdminUsuariosPage() {
   const supabase = await createClient()
@@ -34,21 +35,7 @@ export default async function AdminUsuariosPage() {
             Gerencie os operadores do sistema
           </p>
         </div>
-      </div>
-
-      {/* Info card about adding users */}
-      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
-        <strong>Como adicionar novos usuários:</strong> Acesse o{" "}
-        <a
-          href="https://supabase.com/dashboard/project/jedqlqgcrstsqsppfqsa/auth/users"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline font-medium"
-        >
-          Dashboard do Supabase
-        </a>{" "}
-        → Authentication → Users → Add User. O usuário aparecerá aqui após o primeiro
-        login.
+        <NovoUsuarioDialog />
       </div>
 
       <UsuariosTable usuarios={usuarios} currentUserId={user.id} />

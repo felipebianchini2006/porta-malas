@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Briefcase } from "lucide-react"
 
 export function LoginForm() {
   const searchParams = useSearchParams()
@@ -31,10 +30,10 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm shadow-md">
       <CardHeader className="items-center text-center space-y-3">
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-violet-100">
-          <Briefcase className="w-6 h-6 text-violet-600" />
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100">
+          <span className="text-2xl leading-none">🧳</span>
         </div>
-        <CardTitle className="text-2xl text-violet-700">Guarda-Malas</CardTitle>
+        <CardTitle className="text-2xl text-amber-700">Bag Point</CardTitle>
         <CardDescription>Acesse sua conta</CardDescription>
       </CardHeader>
       <CardContent>
@@ -71,7 +70,7 @@ export function LoginForm() {
           <Button
             type="submit"
             disabled={pending}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
           >
             {pending ? "Entrando..." : "Entrar"}
           </Button>
