@@ -277,6 +277,7 @@ export default function CheckinPage() {
                     <SelectContent>
                       <SelectItem value="Hotel">Hotel</SelectItem>
                       <SelectItem value="Airbnb">Airbnb</SelectItem>
+                      <SelectItem value="Hostel">Hostel</SelectItem>
                       <SelectItem value="Rua">Rua</SelectItem>
                       <SelectItem value="Outro">Outro</SelectItem>
                     </SelectContent>

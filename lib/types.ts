@@ -1,5 +1,5 @@
 export type UserRole = "admin" | "operador"
-export type TipoParceiro = "Hotel" | "Airbnb" | "Rua" | "Outro"
+export type TipoParceiro = "Hotel" | "Airbnb" | "Hostel" | "Rua" | "Outro"
 
 export interface Parceiro {
   id: string
