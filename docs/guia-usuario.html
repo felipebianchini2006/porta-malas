@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bag Point — Guia de Uso e Configuração</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; background: #fff; font-size: 13px; line-height: 1.6; }
+
+  .cover { background: #111; color: #fff; padding: 60px 50px; min-height: 260px; display: flex; flex-direction: column; justify-content: center; }
+  .cover-logo { font-size: 48px; margin-bottom: 12px; }
+  .cover-title { font-size: 32px; font-weight: 800; color: #f5c42c; letter-spacing: -0.5px; }
+  .cover-subtitle { font-size: 16px; color: #ccc; margin-top: 6px; }
+  .cover-meta { margin-top: 28px; font-size: 12px; color: #888; }
+
+  .content { padding: 40px 50px; max-width: 860px; margin: 0 auto; }
+
+  h1 { font-size: 22px; font-weight: 800; color: #111; border-bottom: 3px solid #f5c42c; padding-bottom: 8px; margin: 40px 0 16px; }
+  h2 { font-size: 16px; font-weight: 700; color: #333; margin: 28px 0 10px; }
+  h3 { font-size: 12px; font-weight: 700; color: #666; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  p { margin-bottom: 10px; color: #444; }
+
+  .step { display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-start; }
+  .step-num { flex-shrink: 0; width: 28px; height: 28px; background: #f5c42c; color: #111; font-weight: 800; font-size: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .step-body strong { display: block; font-size: 13px; margin-bottom: 3px; }
+  .step-body p { margin: 0; font-size: 12px; color: #555; }
+
+  .code { font-family: 'Courier New', monospace; font-size: 11px; background: #1e1e1e; color: #d4d4d4; padding: 14px 18px; border-radius: 6px; margin: 10px 0; white-space: pre-wrap; word-break: break-all; }
+  .code .key { color: #9cdcfe; }
+  .code .val { color: #ce9178; }
+  .code .comment { color: #6a9955; }
+
+  .info { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px 16px; margin: 12px 0; font-size: 12px; color: #1e40af; }
+  .warn { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; padding: 12px 16px; margin: 12px 0; font-size: 12px; color: #9a3412; }
+  .success { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px 16px; margin: 12px 0; font-size: 12px; color: #166534; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 12px; }
+  th { background: #f5c42c; color: #111; font-weight: 700; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .url { font-family: monospace; font-size: 11px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: #1e40af; }
+
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 5px; color: #444; font-size: 12px; }
+
+  .section-img { width: 100%; max-width: 560px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 12px 0; display: block; }
+
+  .nav-flow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+  .nav-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+  .nav-arrow { color: #9ca3af; font-size: 14px; }
+
+  footer { background: #111; color: #888; text-align: center; padding: 20px; font-size: 11px; margin-top: 60px; }
+  footer span { color: #f5c42c; }
+
+  .toc { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; margin: 20px 0 40px; }
+  .toc h3 { margin-top: 0; font-size: 13px; color: #333; text-transform: none; letter-spacing: 0; }
+  .toc ol { margin: 8px 0 0; }
+  .toc li { color: #555; font-size: 12px; margin-bottom: 3px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-logo">🧳</div>
+  <div class="cover-title">Bag Point</div>
+  <div class="cover-subtitle">Guia de Uso do Sistema &amp; Configuração de Hospedagem</div>
+  <div class="cover-meta">Versão 1.0 &nbsp;·&nbsp; Março 2026</div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <h3>Índice</h3>
+    <ol>
+      <li>Como usar o sistema no dia a dia</li>
+      <li>Configurar conta no Supabase e obter chaves</li>
+      <li>Hospedar na Vercel (deploy)</li>
+      <li>Variáveis de ambiente (env vars)</li>
+      <li>Criar o primeiro usuário admin</li>
+      <li>Gerenciar usuários pelo sistema</li>
+      <li>Manutenção e atualizações</li>
+    </ol>
+  </div>
+
+  <!-- ===================== SEÇÃO 1 ===================== -->
+  <h1>1. Como Usar o Sistema no Dia a Dia</h1>
+
+  <h2>1.1 Tela de Login</h2>
+  <p>Acesse a URL do sistema (ex: <span class="url">https://bagpoint.vercel.app</span>), insira seu e-mail e senha e clique em <strong>Entrar</strong>.</p>
+  <div class="info">💡 Apenas usuários cadastrados pelo admin conseguem fazer login. Se sua conta foi desativada, aparecerá um aviso na tela.</div>
+
+  <h2>1.2 Novo Check-in</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Clique em "Novo Check-in" no menu lateral</strong>
+      <p>Preencha nome completo e telefone (WhatsApp) do cliente.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Selecione a categoria de cada mala</strong>
+      <p>Clique no card da categoria (Small Bag, Cabin Size, Large Luggage ou Special Items). O valor cobrado é sugerido automaticamente com base nas categorias.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>Ajuste o valor cobrado se necessário</strong>
+      <p>O campo é editável — você pode mudar para meio período ou outro valor combinado.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <strong>Selecione o parceiro (opcional)</strong>
+      <p>Se o cliente veio indicado por um hotel, airbnb ou hostel, selecione o parceiro. Para criar um novo parceiro, clique em "+ Novo parceiro".</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <strong>Clique em "Registrar Check-in"</strong>
+      <p>Um protocolo único é gerado (ex: BP-20260318-001). Você é redirecionado para a página de detalhes onde pode adicionar fotos e enviar o WhatsApp.</p>
+    </div>
+  </div>
+
+  <h2>1.3 Enviar WhatsApp ao Cliente</h2>
+  <p>Na página de detalhes do check-in, clique no botão verde <strong>WhatsApp</strong>. Isso abre o WhatsApp Web/app com a mensagem pré-preenchida incluindo o protocolo, horário e a assinatura <em>Bag Point</em>.</p>
+
+  <h2>1.4 Registrar Retirada</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Clique em "Retirada" no menu lateral</strong>
+      <p>Busque pelo número do protocolo ou nome do cliente.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Confirme a retirada</strong>
+      <p>Verifique os itens e clique em "Confirmar Retirada". O status é atualizado para "retirado".</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>Envie o WhatsApp de confirmação</strong>
+      <p>Clique no botão WhatsApp para enviar a mensagem de saída ao cliente.</p>
+    </div>
+  </div>
+
+  <h2>1.5 Adicionar Fotos</h2>
+  <p>Na página de detalhes do atendimento (após o check-in), clique em <strong>Selecionar Fotos</strong>. No celular, a câmera traseira abre diretamente. Selecione e clique em <strong>Enviar fotos</strong>.</p>
+
+  <h2>1.6 Relatório Geral</h2>
+  <p>Menu lateral → <strong>Relatório</strong>. Filtre por período, veja totais de atendimentos e valor faturado. Exporte para CSV para abrir no Excel.</p>
+
+  <h2>1.7 Relatório de Parceiros (Admin)</h2>
+  <p>Menu lateral → <strong>Parceiros</strong>. Filtre pelo mês desejado, visualize quantos atendimentos cada parceiro gerou e o valor total. Exporte para CSV para calcular comissões.</p>
+
+  <!-- ===================== SEÇÃO 2 ===================== -->
+  <h1>2. Configurar o Supabase</h1>
+
+  <h2>2.1 Criar Conta e Projeto</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Acesse <span class="url">https://supabase.com</span> e crie uma conta gratuita</strong>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Clique em "New Project"</strong>
+      <p>Dê um nome (ex: <em>bagpoint</em>), escolha uma senha forte para o banco, selecione a região <strong>South America (São Paulo)</strong>.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>Aguarde o projeto ser criado</strong>
+      <p>Leva cerca de 1-2 minutos. Após isso, anote a URL do projeto.</p>
+    </div>
+  </div>
+
+  <h2>2.2 Obter as Chaves de API</h2>
+  <p>No painel do Supabase, vá em <strong>Project Settings → API</strong>:</p>
+  <table>
+    <tr><th>Chave</th><th>Onde fica</th><th>Para que serve</th></tr>
+    <tr>
+      <td><code>NEXT_PUBLIC_SUPABASE_URL</code></td>
+      <td>Project URL</td>
+      <td>Endereço do banco (público)</td>
+    </tr>
+    <tr>
+      <td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td>
+      <td>Project API Keys → anon / public</td>
+      <td>Chave pública para o frontend</td>
+    </tr>
+    <tr>
+      <td><code>SUPABASE_SERVICE_ROLE_KEY</code></td>
+      <td>Project API Keys → service_role (secret)</td>
+      <td>Chave admin — criar usuários pelo sistema</td>
+    </tr>
+  </table>
+  <div class="warn">⚠️ A <strong>service_role key</strong> é secreta — nunca a exponha no frontend ou em repositórios públicos. Use apenas em variáveis de ambiente do servidor.</div>
+
+  <h2>2.3 Rodar as Migrações SQL</h2>
+  <p>No Supabase, vá em <strong>SQL Editor</strong> e execute os arquivos da pasta <span class="url">supabase/migrations/</span> do projeto em ordem:</p>
+  <ol>
+    <li><code>001_initial_schema.sql</code> — tabelas principais</li>
+    <li><code>002_storage_and_photos.sql</code> — bucket de fotos</li>
+    <li><code>003_add_parceiros.sql</code> — tabela de parceiros</li>
+  </ol>
+
+  <!-- ===================== SEÇÃO 3 ===================== -->
+  <h1>3. Hospedar na Vercel</h1>
+
+  <h2>3.1 Criar Conta na Vercel</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Acesse <span class="url">https://vercel.com</span> e crie uma conta gratuita</strong>
+      <p>Recomendado: faça login com sua conta do GitHub.</p>
+    </div>
+  </div>
+
+  <h2>3.2 Enviar o Código para o GitHub</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Crie um repositório privado no GitHub</strong>
+      <p>Acesse <span class="url">https://github.com/new</span>, dê um nome (ex: <em>bagpoint</em>), selecione <strong>Private</strong>.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Suba o código com os comandos abaixo (no terminal)</strong>
+    </div>
+  </div>
+  <div class="code"><span class="comment"># Na pasta do projeto:</span>
+git init
+git add .
+git commit -m "feat: bag point system"
+git remote add origin https://github.com/SEU_USUARIO/bagpoint.git
+git push -u origin main</div>
+
+  <h2>3.3 Importar na Vercel</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Na Vercel, clique em "Add New → Project"</strong>
+      <p>Selecione o repositório <em>bagpoint</em> do GitHub.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Configure as variáveis de ambiente</strong>
+      <p>Antes de clicar em Deploy, adicione todas as variáveis (ver seção 4).</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>Clique em "Deploy"</strong>
+      <p>A Vercel faz o build e publica automaticamente. Em 1-2 minutos o sistema estará no ar.</p>
+    </div>
+  </div>
+  <div class="success">✅ A cada vez que você fizer push no GitHub, a Vercel atualiza o sistema automaticamente.</div>
+
+  <!-- ===================== SEÇÃO 4 ===================== -->
+  <h1>4. Variáveis de Ambiente</h1>
+  <p>Configure estas variáveis em <strong>Vercel → Project → Settings → Environment Variables</strong> (e também no arquivo <span class="url">.env.local</span> para rodar localmente):</p>
+
+  <div class="code"><span class="comment"># .env.local — NÃO commitar este arquivo no git</span>
+
+<span class="key">NEXT_PUBLIC_SUPABASE_URL</span>=<span class="val">https://SEU_PROJETO.supabase.co</span>
+<span class="key">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>=<span class="val">eyJhbGciOiJIUzI1NiIsInR5cCI6...</span>
+<span class="key">SUPABASE_SERVICE_ROLE_KEY</span>=<span class="val">eyJhbGciOiJIUzI1NiIsInR5cCI6...service_role...</span></div>
+
+  <table>
+    <tr><th>Variável</th><th>Obrigatória</th><th>Descrição</th></tr>
+    <tr>
+      <td><code>NEXT_PUBLIC_SUPABASE_URL</code></td>
+      <td>✓ Sim</td>
+      <td>URL do projeto Supabase</td>
+    </tr>
+    <tr>
+      <td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td>
+      <td>✓ Sim</td>
+      <td>Chave pública anon do Supabase</td>
+    </tr>
+    <tr>
+      <td><code>SUPABASE_SERVICE_ROLE_KEY</code></td>
+      <td>Para criar usuários</td>
+      <td>Chave secreta service_role — habilita criação de usuários pelo admin</td>
+    </tr>
+  </table>
+
+  <div class="warn">⚠️ Verifique que o arquivo <code>.env.local</code> está no <code>.gitignore</code> para não expor as chaves.</div>
+
+  <!-- ===================== SEÇÃO 5 ===================== -->
+  <h1>5. Criar o Primeiro Usuário Admin</h1>
+  <p>Na primeira vez, o admin precisa ser criado diretamente pelo Supabase (antes de o sistema estar configurado):</p>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>No Supabase → Authentication → Users → "Add User"</strong>
+      <p>Preencha e-mail e senha e clique em <strong>Create User</strong>.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Copie o ID do usuário criado</strong>
+      <p>É um UUID no formato: <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code></p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>No SQL Editor, execute:</strong>
+    </div>
+  </div>
+  <div class="code">INSERT INTO public.usuarios (id, nome, email, role, ativo)
+VALUES (
+  '<span class="val">COLE_O_UUID_AQUI</span>',
+  '<span class="val">Nome do Admin</span>',
+  '<span class="val">admin@bagpoint.com</span>',
+  'admin',
+  true
+);</div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <strong>Faça login no sistema com o e-mail e senha criados</strong>
+      <p>A partir daí, novos operadores podem ser criados diretamente pelo sistema.</p>
+    </div>
+  </div>
+
+  <!-- ===================== SEÇÃO 6 ===================== -->
+  <h1>6. Gerenciar Usuários pelo Sistema</h1>
+  <p>Após configurar a <code>SUPABASE_SERVICE_ROLE_KEY</code>, o admin pode criar operadores sem sair do sistema:</p>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Menu lateral → Usuários</strong>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Clique em "Novo Usuário"</strong>
+      <p>Preencha Nome, E-mail, Senha e selecione o papel (Operador ou Admin).</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>Clique em "Criar usuário"</strong>
+      <p>O operador pode logar imediatamente com o e-mail e senha definidos.</p>
+    </div>
+  </div>
+
+  <p>Na mesma página é possível:</p>
+  <ul>
+    <li>Alterar o papel de um usuário (admin ↔ operador)</li>
+    <li>Desativar uma conta (o operador não consegue mais logar)</li>
+  </ul>
+
+  <!-- ===================== SEÇÃO 7 ===================== -->
+  <h1>7. Manutenção e Atualizações</h1>
+
+  <h2>7.1 Atualizar o Sistema</h2>
+  <p>Qualquer alteração no código é publicada automaticamente:</p>
+  <div class="code">git add .
+git commit -m "fix: descrição da mudança"
+git push</div>
+  <p>A Vercel detecta o push e faz o redeploy em ~1 minuto.</p>
+
+  <h2>7.2 Banco de Dados — Backup</h2>
+  <p>O Supabase faz backups diários automáticos (plano gratuito: 7 dias de retenção). Para backup manual, vá em <strong>Database → Backups</strong>.</p>
+
+  <h2>7.3 Limites do Plano Gratuito</h2>
+  <table>
+    <tr><th>Serviço</th><th>Limite Gratuito</th></tr>
+    <tr><td>Vercel</td><td>100 GB de banda / mês, deploys ilimitados</td></tr>
+    <tr><td>Supabase — Banco</td><td>500 MB de armazenamento</td></tr>
+    <tr><td>Supabase — Storage (fotos)</td><td>1 GB de armazenamento</td></tr>
+    <tr><td>Supabase — Auth</td><td>50.000 usuários ativos / mês</td></tr>
+  </table>
+  <div class="info">💡 Para uso intenso com muitas fotos, considere fazer upload em resolução reduzida ou migrar o storage para um plano pago do Supabase (~US$ 25/mês).</div>
+
+  <h2>7.4 Domínio Personalizado (opcional)</h2>
+  <p>Para usar um domínio próprio (ex: <span class="url">sistema.bagpoint.com.br</span>):</p>
+  <ol>
+    <li>Na Vercel → Project → <strong>Settings → Domains</strong></li>
+    <li>Adicione o domínio e siga as instruções para configurar o DNS</li>
+    <li>O certificado SSL é emitido automaticamente pela Vercel</li>
+  </ol>
+
+</div>
+
+<footer>
+  <span>Bag Point</span> · Guia de Uso e Configuração v1.0 · Março 2026
+</footer>
+
+</body>
+</html>
