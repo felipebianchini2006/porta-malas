@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export function LoginForm() {
   const searchParams = useSearchParams()
@@ -30,10 +31,14 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm shadow-md">
       <CardHeader className="items-center text-center space-y-3">
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100">
-          <span className="text-2xl leading-none">🧳</span>
-        </div>
-        <CardTitle className="text-2xl text-amber-700">Bag Point</CardTitle>
+        <Image
+          src="/logo-bagpoint.jpeg"
+          alt="Bag Point"
+          width={120}
+          height={120}
+          className="rounded-xl"
+          priority
+        />
         <CardDescription>Acesse sua conta</CardDescription>
       </CardHeader>
       <CardContent>
