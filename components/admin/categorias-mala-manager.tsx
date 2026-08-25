@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -112,6 +113,9 @@ function CategoriaDialog({ categoria, onSaved }: CategoriaDialogProps) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{categoria ? "Editar categoria" : "Nova categoria"}</DialogTitle>
+          <DialogDescription>
+            Defina como a categoria será exibida e qual valor será sugerido no check-in.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 pt-2">
           <div className="space-y-1.5">
