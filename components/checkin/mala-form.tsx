@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input"
 import { MalaInput } from "@/lib/actions/checkin"
 import { Plus, X } from "lucide-react"
 import { CategoriaMalaSelector } from "./categoria-mala-selector"
+import type { CategoriaMala } from "@/lib/actions/categorias-mala"
 
 interface MalaFormProps {
   malas: MalaInput[]
+  categorias: CategoriaMala[]
   onChange: (malas: MalaInput[]) => void
 }
 
@@ -16,7 +18,7 @@ function gerarId(index: number): string {
   return `${letters[Math.floor(index / 10) % 26] ?? "A"}${(index % 10) + 1}`
 }
 
-export function MalaForm({ malas, onChange }: MalaFormProps) {
+export function MalaForm({ malas, categorias, onChange }: MalaFormProps) {
   function adicionarMala() {
     const novaId = gerarId(malas.length)
     onChange([...malas, { identificacao_interna: novaId, descricao: "", categoria_id: null }])
@@ -85,6 +87,7 @@ export function MalaForm({ malas, onChange }: MalaFormProps) {
           </div>
 
           <CategoriaMalaSelector
+            categorias={categorias}
             value={mala.categoria_id ?? null}
             onSelect={(cat) => selecionarCategoria(index, cat.id, cat.descricao)}
           />

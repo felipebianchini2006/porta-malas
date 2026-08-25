@@ -36,6 +36,23 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
 
   try {
     const result = await transaction(async (client) => {
+      const categoryIds = [...new Set(input.malas.flatMap((mala) => mala.categoria_id ? [mala.categoria_id] : []))]
+      const categories = categoryIds.length > 0
+        ? await client.query<{
+            id: string
+            nome: string
+            preco_diaria: string
+            preco_meio_periodo: string
+          }>(
+            `SELECT id, nome, preco_diaria, preco_meio_periodo
+               FROM categorias_mala
+              WHERE id = ANY($1::text[]) AND ativo = true`,
+            [categoryIds]
+          )
+        : { rows: [] }
+      const categoriesById = new Map(categories.rows.map((category) => [category.id, category]))
+      if (categoriesById.size !== categoryIds.length) throw new Error("CATEGORIA_INVALIDA")
+
       const counter = await client.query<{ day: string; last_value: number }>(
         `INSERT INTO protocol_counters (day, last_value)
          VALUES ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date, 1)
@@ -63,14 +80,22 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
       )
 
       for (const mala of input.malas) {
+        if (!mala.identificacao_interna.trim()) throw new Error("MALA_INVALIDA")
+        const category = mala.categoria_id ? categoriesById.get(mala.categoria_id) : undefined
         await client.query(
-          `INSERT INTO malas (atendimento_id, identificacao_interna, descricao, observacoes, status)
-           VALUES ($1, $2, $3, $4, 'em_guarda')`,
+          `INSERT INTO malas (
+             atendimento_id, identificacao_interna, descricao, observacoes, status,
+             categoria_id, categoria_nome, preco_diaria_aplicado, preco_meio_periodo_aplicado
+           ) VALUES ($1, $2, $3, $4, 'em_guarda', $5, $6, $7, $8)`,
           [
             atendimento.rows[0].id,
             mala.identificacao_interna.trim(),
             mala.descricao?.trim() || null,
             mala.observacoes?.trim() || null,
+            category?.id ?? null,
+            category?.nome ?? null,
+            category?.preco_diaria ?? null,
+            category?.preco_meio_periodo ?? null,
           ]
         )
       }
@@ -81,6 +106,12 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
     revalidatePath("/dashboard")
     return { success: true, atendimento_id: result.atendimentoId, protocolo: result.protocolo }
   } catch (error) {
+    if (error instanceof Error && error.message === "CATEGORIA_INVALIDA") {
+      return { success: false, error: "Uma categoria foi desativada ou não existe mais" }
+    }
+    if (error instanceof Error && error.message === "MALA_INVALIDA") {
+      return { success: false, error: "Cada mala precisa de uma identificação" }
+    }
     console.error("Erro ao registrar check-in:", error)
     return { success: false, error: "Erro ao registrar atendimento" }
   }

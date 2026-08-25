@@ -48,6 +48,10 @@ export interface Mala {
   descricao: string | null
   status: StatusMala
   observacoes: string | null
+  categoria_id?: string | null
+  categoria_nome?: string | null
+  preco_diaria_aplicado?: number | null
+  preco_meio_periodo_aplicado?: number | null
   created_at: string
   // relations
   fotos?: FotoMala[]
