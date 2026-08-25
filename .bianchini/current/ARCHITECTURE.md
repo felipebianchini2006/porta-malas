@@ -9,7 +9,7 @@ O sistema opera de forma autocontida em uma VPS.
 - Migrations são aplicadas em ordem, uma vez, antes de iniciar o servidor.
 - Check-in, geração de protocolo e retirada usam transações; o contador diário evita protocolos duplicados.
 - Banco, uploads, rede e containers são exclusivos desta aplicação.
-- A publicação externa exige proxy HTTPS; a porta do app permanece ligada a `127.0.0.1`.
+- A publicação externa usa o Caddy existente por uma rede Docker compartilhada somente com o app; a porta direta permanece ligada a `127.0.0.1`.
 
 ## Operação
 

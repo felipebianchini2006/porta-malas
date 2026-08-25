@@ -26,6 +26,12 @@ O primeiro start aplica as migrations em ordem e cria o administrador informado 
 
 Por padrão, a aplicação escuta apenas em `127.0.0.1:3100`. Publique por HTTPS usando o proxy reverso já existente na VPS. Um modelo está em `deploy/nginx.conf.example`.
 
+Na VPS compartilhada atual, use também o override `deploy/compose.proxy.yaml` para conectar somente o app à rede do Caddy existente:
+
+```bash
+docker compose -f compose.yaml -f deploy/compose.proxy.yaml up -d --build
+```
+
 ## Variáveis
 
 | Variável | Uso |

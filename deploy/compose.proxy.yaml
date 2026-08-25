@@ -1,0 +1,12 @@
+services:
+  app:
+    networks:
+      internal:
+      client_proxy:
+        aliases:
+          - porta-malas-app
+
+networks:
+  client_proxy:
+    external: true
+    name: neuro-tests_web
