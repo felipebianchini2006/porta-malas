@@ -1,21 +1,11 @@
-import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "@/lib/auth/session"
 import { SidebarNav } from "./sidebar-nav"
 import { logout } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 
 export async function Sidebar() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const { data: currentUser } = await supabase
-    .from("usuarios")
-    .select("role")
-    .eq("id", user?.id ?? "")
-    .single()
-
-  const isAdmin = currentUser?.role === "admin"
+  const user = await getCurrentUser()
+  const isAdmin = user?.role === "admin"
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-slate-200 flex flex-col z-30">

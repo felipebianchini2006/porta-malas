@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: porta_malas
+      POSTGRES_USER: porta_malas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD obrigatoria}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U porta_malas -d porta_malas"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - internal
+
+  app:
+    build:
+      context: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://porta_malas:${POSTGRES_PASSWORD}@db:5432/porta_malas
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET obrigatoria}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL obrigatoria}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD obrigatoria}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      UPLOAD_DIR: /app/uploads
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3100}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  postgres_data:
+  uploads_data:

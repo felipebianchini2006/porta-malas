@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "@/lib/auth/session"
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Painel",
@@ -12,10 +12,7 @@ interface HeaderProps {
 }
 
 export async function Header({ pathname = "" }: HeaderProps) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
 
   const title = pageTitles[pathname] ?? "Painel"
   const initials = user?.email ? user.email.slice(0, 2).toUpperCase() : "OP"

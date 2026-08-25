@@ -1,0 +1,12 @@
+.git
+.bianchini/.runtime
+.next
+node_modules
+coverage
+backups
+.env
+.env.*
+!.env.example
+firebase-debug.log
+docs
+npm-debug.log*

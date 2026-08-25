@@ -1,7 +1,8 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { transaction } from "@/lib/db"
+import { getCurrentUser } from "@/lib/auth/session"
 
 export interface MalaInput {
   identificacao_interna: string
@@ -27,62 +28,60 @@ export interface CheckinResult {
 }
 
 export async function realizarCheckin(input: CheckinInput): Promise<CheckinResult> {
-  const supabase = await createClient()
-
-  // Get current user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) {
-    return { success: false, error: "Usuário não autenticado" }
+  const user = await getCurrentUser()
+  if (!user) return { success: false, error: "Usuário não autenticado" }
+  if (!input.cliente_nome.trim() || !input.cliente_telefone.trim() || input.malas.length === 0) {
+    return { success: false, error: "Preencha os dados do cliente e ao menos uma mala" }
   }
 
-  // Generate protocol via RPC
-  const { data: protocolo, error: protocoloError } = await supabase.rpc("gerar_protocolo")
+  try {
+    const result = await transaction(async (client) => {
+      const counter = await client.query<{ day: string; last_value: number }>(
+        `INSERT INTO protocol_counters (day, last_value)
+         VALUES ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date, 1)
+         ON CONFLICT (day) DO UPDATE SET last_value = protocol_counters.last_value + 1
+         RETURNING day::text, last_value`
+      )
+      const row = counter.rows[0]
+      const protocolo = `${row.day.replaceAll("-", "")}-${String(row.last_value).padStart(4, "0")}`
 
-  if (protocoloError || !protocolo) {
-    return { success: false, error: "Erro ao gerar protocolo" }
-  }
+      const atendimento = await client.query<{ id: string }>(
+        `INSERT INTO atendimentos (
+           protocolo, cliente_nome, cliente_telefone, observacoes, valor_cobrado,
+           parceiro_id, operador_checkin_id, status
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'ativo')
+         RETURNING id`,
+        [
+          protocolo,
+          input.cliente_nome.trim(),
+          input.cliente_telefone.replace(/\D/g, ""),
+          input.observacoes?.trim() || null,
+          input.valor_cobrado ?? null,
+          input.parceiro_id ?? null,
+          user.id,
+        ]
+      )
 
-  // Insert atendimento
-  const { data: atendimento, error: atendimentoError } = await supabase
-    .from("atendimentos")
-    .insert({
-      protocolo,
-      cliente_nome: input.cliente_nome,
-      cliente_telefone: input.cliente_telefone.replace(/\D/g, ""),
-      observacoes: input.observacoes || null,
-      valor_cobrado: input.valor_cobrado || null,
-      parceiro_id: input.parceiro_id ?? null,
-      operador_checkin_id: user.id,
-      status: "ativo",
+      for (const mala of input.malas) {
+        await client.query(
+          `INSERT INTO malas (atendimento_id, identificacao_interna, descricao, observacoes, status)
+           VALUES ($1, $2, $3, $4, 'em_guarda')`,
+          [
+            atendimento.rows[0].id,
+            mala.identificacao_interna.trim(),
+            mala.descricao?.trim() || null,
+            mala.observacoes?.trim() || null,
+          ]
+        )
+      }
+
+      return { atendimentoId: atendimento.rows[0].id, protocolo }
     })
-    .select()
-    .single()
 
-  if (atendimentoError || !atendimento) {
+    revalidatePath("/dashboard")
+    return { success: true, atendimento_id: result.atendimentoId, protocolo: result.protocolo }
+  } catch (error) {
+    console.error("Erro ao registrar check-in:", error)
     return { success: false, error: "Erro ao registrar atendimento" }
   }
-
-  // Insert malas
-  if (input.malas.length > 0) {
-    const malasData = input.malas.map((mala) => ({
-      atendimento_id: atendimento.id,
-      identificacao_interna: mala.identificacao_interna,
-      descricao: mala.descricao || null,
-      observacoes: mala.observacoes || null,
-      status: "em_guarda" as const,
-    }))
-
-    const { error: malasError } = await supabase.from("malas").insert(malasData)
-
-    if (malasError) {
-      return { success: false, error: "Erro ao registrar malas" }
-    }
-  }
-
-  revalidatePath("/dashboard")
-  return { success: true, atendimento_id: atendimento.id, protocolo }
 }

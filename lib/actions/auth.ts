@@ -1,30 +1,33 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { query } from "@/lib/db"
+import { ensureBootstrapAdmin } from "@/lib/auth/bootstrap"
+import { verifyPassword } from "@/lib/auth/password"
+import { createSession, destroySession } from "@/lib/auth/session"
 
 export async function login(formData: FormData) {
-  const supabase = await createClient()
-
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
+  await ensureBootstrapAdmin()
+  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const password = String(formData.get("password") ?? "")
+  const result = await query<{ id: string; password_hash: string }>(
+    "SELECT id, password_hash FROM usuarios WHERE email = $1 AND ativo = true",
+    [email]
+  )
+  const user = result.rows[0]
+  if (!user || !(await verifyPassword(password, user.password_hash))) {
+    return { error: "E-mail ou senha inválidos" }
   }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
-
-  if (error) {
-    return { error: error.message }
-  }
+  await createSession(user.id)
 
   revalidatePath("/", "layout")
   redirect("/dashboard")
 }
 
 export async function logout() {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
+  await destroySession()
   revalidatePath("/", "layout")
   redirect("/login")
 }

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { ImagePlus, X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -21,7 +20,6 @@ export function FotoUpload({ malaId, atendimentoId, onUploadComplete }: FotoUplo
   const [previews, setPreviews] = useState<Preview[]>([])
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const supabase = createClient()
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -47,42 +45,39 @@ export function FotoUpload({ malaId, atendimentoId, onUploadComplete }: FotoUplo
   async function uploadFotos() {
     if (previews.length === 0) return
     setUploading(true)
+    let uploadedCount = 0
 
-    for (const preview of previews) {
-      const ext = preview.file.name.split(".").pop() ?? "jpg"
-      const path = `${atendimentoId}/${malaId}/${Date.now()}.${ext}`
+    try {
+      for (const preview of previews) {
+        const formData = new FormData()
+        formData.set("file", preview.file)
+        formData.set("malaId", malaId)
+        formData.set("atendimentoId", atendimentoId)
 
-      const { error: uploadError } = await supabase.storage
-        .from("fotos-malas")
-        .upload(path, preview.file)
+        try {
+          const response = await fetch("/api/uploads", { method: "POST", body: formData })
+          const result = (await response.json()) as { url?: string; error?: string }
 
-      if (uploadError) {
-        toast.error(`Erro ao enviar foto: ${uploadError.message}`)
-        continue
+          if (!response.ok || !result.url) {
+            toast.error(`Erro ao enviar foto: ${result.error || "falha inesperada"}`)
+            continue
+          }
+
+          uploadedCount += 1
+          onUploadComplete?.(result.url)
+        } catch {
+          toast.error("Erro ao enviar foto: conexão indisponível")
+        }
       }
-
-      const { data: urlData } = supabase.storage.from("fotos-malas").getPublicUrl(path)
-      const publicUrl = urlData.publicUrl
-
-      const { error: insertError } = await supabase.from("fotos_malas").insert({
-        mala_id: malaId,
-        storage_path: path,
-        url: publicUrl,
-      })
-
-      if (insertError) {
-        toast.error(`Erro ao salvar referência da foto: ${insertError.message}`)
-        continue
-      }
-
-      onUploadComplete?.(publicUrl)
+    } finally {
+      previews.forEach((preview) => URL.revokeObjectURL(preview.objectUrl))
+      setPreviews([])
+      setUploading(false)
     }
 
-    // Revoke all object URLs and clear previews
-    previews.forEach((p) => URL.revokeObjectURL(p.objectUrl))
-    setPreviews([])
-    setUploading(false)
-    toast.success("Fotos enviadas com sucesso!")
+    if (uploadedCount > 0) {
+      toast.success(`${uploadedCount} foto${uploadedCount > 1 ? "s" : ""} enviada${uploadedCount > 1 ? "s" : ""} com sucesso!`)
+    }
   }
 
   return (

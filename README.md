@@ -1,87 +1,62 @@
 # Guarda-Malas
 
-Sistema de gerenciamento de guarda-volumes para operadores de pequeno porte (1–5 operadores).
+Sistema interno de guarda-volumes para equipes pequenas. A aplicação é autocontida e roda em uma VPS com Next.js, PostgreSQL e armazenamento persistente de fotos.
 
-## Tech Stack
+## Stack
 
-- **Framework**: Next.js 15 (App Router) + TypeScript
-- **Estilização**: Tailwind CSS + shadcn/ui
-- **Banco de dados / Auth / Storage**: Supabase
-- **Toasts**: Sonner
-- **Fontes**: Geist Sans / Geist Mono
+- Next.js 15 e TypeScript
+- PostgreSQL 16
+- Autenticação própria com senha `scrypt` e sessão `HttpOnly`
+- Fotos em volume persistente local
+- Docker Compose
 
-## Pré-requisitos
+## Executar na VPS
 
-- Node.js 18+
-- Conta no [Supabase](https://supabase.com)
-
-## Configuração
-
-### 1. Clone o repositório
+Requisitos: Docker Engine com Docker Compose.
 
 ```bash
-git clone <url-do-repositorio>
-cd porta-malas
+cp .env.example .env
+# preencha senhas fortes antes de iniciar
+docker compose up -d --build
+docker compose ps
+curl -f http://127.0.0.1:3100/api/health
 ```
 
-### 2. Instale as dependências
+O primeiro start aplica as migrations em ordem e cria o administrador informado em `.env`. A criação é idempotente: reiniciar não duplica o usuário.
 
-```bash
-npm install
-```
+Por padrão, a aplicação escuta apenas em `127.0.0.1:3100`. Publique por HTTPS usando o proxy reverso já existente na VPS. Um modelo está em `deploy/nginx.conf.example`.
 
-### 3. Configure as variáveis de ambiente
+## Variáveis
 
-```bash
-cp .env.local.example .env.local
-```
-
-Edite `.env.local` e preencha com as credenciais do seu projeto Supabase:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://<seu-projeto>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<sua-anon-key>
-```
-
-### 4. Execute a migração SQL
-
-No **Supabase Dashboard > SQL Editor**, execute o arquivo de migração localizado em `supabase/migrations/` para criar as tabelas necessárias (`atendimentos`, `malas`, `fotos`).
-
-### 5. Crie o primeiro usuário
-
-No **Supabase Dashboard > Authentication > Users**, crie um usuário com e-mail e senha. Este será o operador inicial do sistema.
-
-### 6. Inicie o servidor de desenvolvimento
-
-```bash
-npm run dev
-```
-
-Acesse [http://localhost:3000](http://localhost:3000) e faça login com o usuário criado.
-
-## Variáveis de Ambiente
-
-| Variável | Descrição |
+| Variável | Uso |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase (encontrada em Project Settings > API) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Chave anônima pública do Supabase (encontrada em Project Settings > API) |
+| `POSTGRES_PASSWORD` | Senha do PostgreSQL interno |
+| `SESSION_SECRET` | Segredo de sessão com pelo menos 32 caracteres |
+| `ADMIN_EMAIL` | Login do administrador inicial |
+| `ADMIN_PASSWORD` | Senha inicial, com pelo menos 8 caracteres |
+| `ADMIN_NAME` | Nome do administrador |
+| `APP_BIND` | Interface publicada pelo Docker; padrão `127.0.0.1` |
+| `APP_PORT` | Porta local; padrão `3100` |
 
-## Configuração do Supabase
+Não versione `.env`.
 
-### Autenticação
+## Persistência e backup
 
-- Em **Authentication > Settings**, desative a confirmação de e-mail ("Enable email confirmations") para facilitar o uso interno.
+Os volumes `postgres_data` e `uploads_data` guardam banco e fotos. Não use `docker compose down -v` em produção.
 
-### Storage
+```bash
+./scripts/backup.sh
+```
 
-- Em **Storage**, crie um bucket chamado `fotos-malas`.
-- Defina as políticas (policies) do bucket para permitir leitura/escrita autenticada, de acordo com as necessidades do seu ambiente.
+O comando só termina com sucesso quando os dois arquivos de backup são não vazios. Copie os backups para outro servidor ou storage periodicamente.
 
-## Funcionalidades
+## Desenvolvimento e verificação
 
-- Autenticação segura via Supabase Auth
-- Dashboard com estatísticas de ocupação em tempo real
-- Fluxo completo de check-in com registro de malas e upload de fotos
-- Fluxo de retirada com busca por protocolo, nome ou telefone
-- Relatório com exportação em CSV e Excel
-- Layout responsivo com sidebar para desktop e menu hamburguer para mobile
+```bash
+npm ci
+npm test
+npm run typecheck
+npm run lint
+npm run build
+docker compose config
+```

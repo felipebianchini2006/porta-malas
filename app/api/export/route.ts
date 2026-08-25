@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "@/lib/auth/session"
 import { buscarRelatorio } from "@/lib/actions/relatorio"
 import { gerarCSV, gerarExcel } from "@/lib/utils/export"
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -32,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (formato === "xlsx") {
-    const buffer = gerarExcel(atendimentos, periodo)
+    const buffer = await gerarExcel(atendimentos)
     return new NextResponse(buffer.buffer as ArrayBuffer, {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

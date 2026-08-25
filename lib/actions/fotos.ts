@@ -1,7 +1,10 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { unlink } from "node:fs/promises"
+import path from "node:path"
 import { revalidatePath } from "next/cache"
+import { getCurrentUser } from "@/lib/auth/session"
+import { query } from "@/lib/db"
 
 export interface SalvarFotoInput {
   mala_id: string
@@ -10,34 +13,48 @@ export interface SalvarFotoInput {
 }
 
 export async function salvarFoto(input: SalvarFotoInput): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  if (userError || !user) return { success: false, error: "Não autenticado" }
-
-  const { error } = await supabase.from("fotos_malas").insert({
-    mala_id: input.mala_id,
-    storage_path: input.storage_path,
-    url: input.url,
-  })
-
-  if (error) return { success: false, error: error.message }
-
-  revalidatePath(`/checkin/[id]`, "page")
-  return { success: true }
+  if (!(await getCurrentUser())) return { success: false, error: "Não autenticado" }
+  if (!input.mala_id || !input.storage_path || !input.url.startsWith("/api/uploads/")) {
+    return { success: false, error: "Dados da foto inválidos" }
+  }
+  try {
+    await query(
+      "INSERT INTO fotos_malas (mala_id, storage_path, url) VALUES ($1, $2, $3)",
+      [input.mala_id, input.storage_path, input.url]
+    )
+    revalidatePath("/checkin/[id]", "page")
+    return { success: true }
+  } catch (error) {
+    console.error("Erro ao salvar foto:", error)
+    return { success: false, error: "Erro ao salvar foto" }
+  }
 }
 
-export async function excluirFoto(fotoId: string, storagePath: string): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
+export async function excluirFoto(
+  fotoId: string,
+  storagePath: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await getCurrentUser())) return { success: false, error: "Não autenticado" }
+  try {
+    const result = await query<{ storage_path: string }>(
+      "DELETE FROM fotos_malas WHERE id = $1 AND storage_path = $2 RETURNING storage_path",
+      [fotoId, storagePath]
+    )
+    const storedPath = result.rows[0]?.storage_path
+    if (!storedPath) return { success: false, error: "Foto não encontrada" }
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  if (userError || !user) return { success: false, error: "Não autenticado" }
+    const uploadRoot = path.resolve(process.env.UPLOAD_DIR || path.join(process.cwd(), "data", "uploads"))
+    const filePath = path.resolve(uploadRoot, storedPath)
+    if (filePath.startsWith(`${uploadRoot}${path.sep}`)) {
+      await unlink(filePath).catch((error: NodeJS.ErrnoException) => {
+        if (error.code !== "ENOENT") console.error("Erro ao remover arquivo da foto:", error)
+      })
+    }
 
-  await supabase.storage.from("fotos-malas").remove([storagePath])
-
-  const { error } = await supabase.from("fotos_malas").delete().eq("id", fotoId)
-  if (error) return { success: false, error: error.message }
-
-  revalidatePath(`/checkin/[id]`, "page")
-  return { success: true }
+    revalidatePath("/checkin/[id]", "page")
+    return { success: true }
+  } catch (error) {
+    console.error("Erro ao excluir foto:", error)
+    return { success: false, error: "Erro ao excluir foto" }
+  }
 }

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { query } from "@/lib/db"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { CheckCircle2, MessageCircle, LayoutDashboard, PlusCircle } from "lucide-react"
@@ -16,21 +16,35 @@ interface PageProps {
 
 export default async function CheckinConfirmacaoPage({ params }: PageProps) {
   const { id } = await params
-  const supabase = await createClient()
+  const [atendimentoResult, malasResult, fotosResult] = await Promise.all([
+    query<Atendimento>("SELECT * FROM atendimentos WHERE id = $1", [id]),
+    query<Mala>("SELECT * FROM malas WHERE atendimento_id = $1 ORDER BY created_at", [id]),
+    query<FotoMala>(
+      `SELECT f.*
+         FROM fotos_malas f
+         JOIN malas m ON m.id = f.mala_id
+        WHERE m.atendimento_id = $1
+        ORDER BY f.created_at`,
+      [id]
+    ),
+  ])
 
-  const { data, error } = await supabase
-    .from("atendimentos")
-    .select("*, malas(*, fotos_malas(*))")
-    .eq("id", id)
-    .single()
-
-  if (error || !data) {
+  const atendimento = atendimentoResult.rows[0]
+  if (!atendimento) {
     notFound()
   }
 
-  type MalaComFotos = Mala & { fotos_malas: FotoMala[] }
-  const atendimento = data as Atendimento
-  const malasComFotos = ((atendimento.malas ?? []) as unknown) as MalaComFotos[]
+  const fotosPorMala = new Map<string, FotoMala[]>()
+  for (const foto of fotosResult.rows) {
+    const fotos = fotosPorMala.get(foto.mala_id) ?? []
+    fotos.push(foto)
+    fotosPorMala.set(foto.mala_id, fotos)
+  }
+
+  const malasComFotos = malasResult.rows.map((mala) => ({
+    ...mala,
+    fotos_malas: fotosPorMala.get(mala.id) ?? [],
+  }))
 
   const horario = new Date(atendimento.data_checkin).toLocaleString("pt-BR", {
     day: "2-digit",

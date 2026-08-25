@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MalaInput } from "@/lib/actions/checkin"
 import { Plus, X } from "lucide-react"
-import { CategoriaMalaSelector, CATEGORIAS_MALA } from "./categoria-mala-selector"
+import { CategoriaMalaSelector } from "./categoria-mala-selector"
 
 interface MalaFormProps {
   malas: MalaInput[]

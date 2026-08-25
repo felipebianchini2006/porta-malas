@@ -1,41 +1,40 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
-import type { Parceiro } from "@/lib/types"
+import { getCurrentUser } from "@/lib/auth/session"
+import { query } from "@/lib/db"
+import type { Parceiro, TipoParceiro } from "@/lib/types"
 
 export async function listarParceiros(): Promise<Parceiro[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("parceiros")
-    .select("*")
-    .eq("ativo", true)
-    .order("nome", { ascending: true })
-
-  if (error) {
+  if (!(await getCurrentUser())) return []
+  try {
+    const result = await query<Parceiro>(
+      "SELECT id, nome, tipo, ativo, created_at FROM parceiros WHERE ativo = true ORDER BY nome"
+    )
+    return result.rows
+  } catch (error) {
     console.error("Erro ao listar parceiros:", error)
     return []
   }
-
-  return (data ?? []) as Parceiro[]
 }
 
 export async function criarParceiro(
   nome: string,
   tipo: string
 ): Promise<{ success: boolean; parceiro?: Parceiro; error?: string }> {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from("parceiros")
-    .insert({ nome, tipo })
-    .select()
-    .single()
-
-  if (error) {
-    return { success: false, error: error.message }
+  if (!(await getCurrentUser())) return { success: false, error: "Não autenticado" }
+  const allowed: TipoParceiro[] = ["Hotel", "Airbnb", "Hostel", "Rua", "Outro"]
+  if (!allowed.includes(tipo as TipoParceiro)) return { success: false, error: "Tipo de parceiro inválido" }
+  try {
+    const result = await query<Parceiro>(
+      `INSERT INTO parceiros (nome, tipo) VALUES ($1, $2)
+       RETURNING id, nome, tipo, ativo, created_at`,
+      [nome.trim(), tipo]
+    )
+    return { success: true, parceiro: result.rows[0] }
+  } catch (error) {
+    console.error("Erro ao criar parceiro:", error)
+    return { success: false, error: "Erro ao criar parceiro" }
   }
-
-  return { success: true, parceiro: data as Parceiro }
 }
 
 export interface RelatorioParceiro {
@@ -46,44 +45,32 @@ export interface RelatorioParceiro {
   valor_total: number
 }
 
-export async function buscarRelatorioParceiros(
-  dataInicio: string,
-  dataFim: string
-): Promise<RelatorioParceiro[]> {
-  const supabase = await createClient()
+interface RelatorioParceiroRow extends Omit<RelatorioParceiro, "total_atendimentos" | "valor_total"> {
+  total_atendimentos: string
+  valor_total: string
+}
 
-  const { data, error } = await supabase
-    .from("atendimentos")
-    .select("parceiro_id, valor_cobrado, parceiro:parceiros(id, nome, tipo)")
-    .not("parceiro_id", "is", null)
-    .gte("data_checkin", dataInicio)
-    .lte("data_checkin", dataFim + "T23:59:59")
-
-  if (error) {
+export async function buscarRelatorioParceiros(dataInicio: string, dataFim: string): Promise<RelatorioParceiro[]> {
+  if (!(await getCurrentUser())) return []
+  try {
+    const result = await query<RelatorioParceiroRow>(
+      `SELECT p.id, p.nome, p.tipo, count(a.id) AS total_atendimentos,
+              COALESCE(sum(a.valor_cobrado), 0) AS valor_total
+         FROM parceiros p
+         JOIN atendimentos a ON a.parceiro_id = p.id
+        WHERE a.data_checkin >= ($1::date::timestamp AT TIME ZONE 'America/Sao_Paulo')
+          AND a.data_checkin < (($2::date + 1)::timestamp AT TIME ZONE 'America/Sao_Paulo')
+        GROUP BY p.id, p.nome, p.tipo
+        ORDER BY valor_total DESC`,
+      [dataInicio, dataFim]
+    )
+    return result.rows.map((row) => ({
+      ...row,
+      total_atendimentos: Number(row.total_atendimentos),
+      valor_total: Number(row.valor_total),
+    }))
+  } catch (error) {
     console.error("Erro ao buscar relatório de parceiros:", error)
     return []
   }
-
-  const agrupado = new Map<string, RelatorioParceiro>()
-
-  for (const row of data ?? []) {
-    const p = Array.isArray(row.parceiro) ? row.parceiro[0] : row.parceiro as { id: string; nome: string; tipo: string } | null
-    if (!p) continue
-
-    const existing = agrupado.get(p.id)
-    if (existing) {
-      existing.total_atendimentos += 1
-      existing.valor_total += row.valor_cobrado ?? 0
-    } else {
-      agrupado.set(p.id, {
-        id: p.id,
-        nome: p.nome,
-        tipo: p.tipo,
-        total_atendimentos: 1,
-        valor_total: row.valor_cobrado ?? 0,
-      })
-    }
-  }
-
-  return Array.from(agrupado.values()).sort((a, b) => b.valor_total - a.valor_total)
 }

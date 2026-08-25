@@ -1,26 +1,17 @@
-import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "@/lib/auth/session"
 import { redirect } from "next/navigation"
 import { listarUsuarios } from "@/lib/actions/usuarios"
 import { UsuariosTable } from "@/components/admin/usuarios-table"
 import { NovoUsuarioDialog } from "@/components/admin/novo-usuario-dialog"
 
 export default async function AdminUsuariosPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
 
   if (!user) {
     redirect("/login")
   }
 
-  const { data: currentUser } = await supabase
-    .from("usuarios")
-    .select("role")
-    .eq("id", user.id)
-    .single()
-
-  if (currentUser?.role !== "admin") {
+  if (user.role !== "admin") {
     redirect("/dashboard")
   }
 

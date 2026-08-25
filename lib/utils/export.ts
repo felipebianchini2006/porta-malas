@@ -1,5 +1,5 @@
-import * as XLSX from "xlsx"
-import { type RelatorioAtendimento } from "@/lib/actions/relatorio"
+import ExcelJS from "exceljs"
+import type { RelatorioAtendimento } from "../actions/relatorio.ts"
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "-"
@@ -42,37 +42,37 @@ export function gerarCSV(atendimentos: RelatorioAtendimento[]): string {
   return "\uFEFF" + csvContent // BOM for UTF-8 Excel compatibility
 }
 
-export function gerarExcel(atendimentos: RelatorioAtendimento[], periodo: string): Uint8Array {
-  const wsData = [
-    ["Protocolo", "Cliente", "Telefone", "Qtd. Malas", "Valor (R$)", "Status", "Check-in", "Retirada"],
-    ...atendimentos.map((a) => [
-      a.protocolo,
-      a.cliente_nome,
-      a.cliente_telefone,
-      a.qtd_malas,
-      a.valor_cobrado || 0,
-      formatStatus(a.status),
-      a.data_checkin ? new Date(a.data_checkin) : "",
-      a.data_retirada ? new Date(a.data_retirada) : "",
-    ]),
+export async function gerarExcel(atendimentos: RelatorioAtendimento[]): Promise<Uint8Array> {
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet("Relatório")
+  worksheet.columns = [
+    { header: "Protocolo", key: "protocolo", width: 12 },
+    { header: "Cliente", key: "cliente", width: 30 },
+    { header: "Telefone", key: "telefone", width: 15 },
+    { header: "Qtd. Malas", key: "quantidade", width: 10 },
+    { header: "Valor (R$)", key: "valor", width: 12 },
+    { header: "Status", key: "status", width: 12 },
+    { header: "Check-in", key: "checkin", width: 20 },
+    { header: "Retirada", key: "retirada", width: 20 },
   ]
 
-  const ws = XLSX.utils.aoa_to_sheet(wsData)
+  for (const atendimento of atendimentos) {
+    worksheet.addRow({
+      protocolo: atendimento.protocolo,
+      cliente: atendimento.cliente_nome,
+      telefone: atendimento.cliente_telefone,
+      quantidade: atendimento.qtd_malas,
+      valor: atendimento.valor_cobrado || 0,
+      status: formatStatus(atendimento.status),
+      checkin: atendimento.data_checkin ? new Date(atendimento.data_checkin) : "",
+      retirada: atendimento.data_retirada ? new Date(atendimento.data_retirada) : "",
+    })
+  }
 
-  // Column widths
-  ws["!cols"] = [
-    { wch: 12 }, // Protocolo
-    { wch: 30 }, // Cliente
-    { wch: 15 }, // Telefone
-    { wch: 10 }, // Qtd
-    { wch: 12 }, // Valor
-    { wch: 12 }, // Status
-    { wch: 20 }, // Check-in
-    { wch: 20 }, // Retirada
-  ]
+  worksheet.getRow(1).font = { bold: true }
+  worksheet.getColumn("valor").numFmt = 'R$ #,##0.00'
+  worksheet.getColumn("checkin").numFmt = "dd/mm/yyyy hh:mm"
+  worksheet.getColumn("retirada").numFmt = "dd/mm/yyyy hh:mm"
 
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, "Relatório")
-
-  return XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Uint8Array
+  return new Uint8Array(await workbook.xlsx.writeBuffer())
 }

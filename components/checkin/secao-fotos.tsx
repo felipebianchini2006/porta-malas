@@ -49,6 +49,7 @@ export function SecaoFotos({ malas, atendimentoId }: SecaoFotosProps) {
                       src={foto.url}
                       alt={`Foto mala ${mala.identificacao_interna}`}
                       fill
+                      unoptimized
                       className="object-cover"
                       sizes="(max-width: 640px) 33vw, 25vw"
                     />

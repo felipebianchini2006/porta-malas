@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { PackagePlus, PackageCheck } from "lucide-react"
 
-import { createClient } from "@/lib/supabase/server"
+import { query } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { StatsCards } from "@/components/dashboard/stats-cards"
@@ -13,42 +13,37 @@ interface AtendimentoComMalas extends Atendimento {
 }
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const todayISO = today.toISOString()
 
   const [
-    { data: atendimentos },
-    { count: totalAtivo },
-    { count: entradasHoje },
-    { count: retiradasHoje },
+    atendimentosResult,
+    totalAtivoResult,
+    entradasHojeResult,
+    retiradasHojeResult,
   ] = await Promise.all([
-    supabase
-      .from("atendimentos")
-      .select("*, malas(*)")
-      .eq("status", "ativo")
-      .order("data_checkin", { ascending: false }),
-
-    supabase
-      .from("atendimentos")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "ativo"),
-
-    supabase
-      .from("atendimentos")
-      .select("*", { count: "exact", head: true })
-      .gte("data_checkin", todayISO),
-
-    supabase
-      .from("atendimentos")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "retirado")
-      .gte("data_retirada", todayISO),
+    query<AtendimentoComMalas>(
+      `SELECT a.*,
+              COALESCE(json_agg(m ORDER BY m.created_at) FILTER (WHERE m.id IS NOT NULL), '[]') AS malas
+         FROM atendimentos a
+         LEFT JOIN malas m ON m.atendimento_id = a.id
+        WHERE a.status = 'ativo'
+        GROUP BY a.id
+        ORDER BY a.data_checkin DESC`
+    ),
+    query<{ count: number }>("SELECT COUNT(*)::int AS count FROM atendimentos WHERE status = 'ativo'"),
+    query<{ count: number }>("SELECT COUNT(*)::int AS count FROM atendimentos WHERE data_checkin >= $1", [todayISO]),
+    query<{ count: number }>(
+      "SELECT COUNT(*)::int AS count FROM atendimentos WHERE status = 'retirado' AND data_retirada >= $1",
+      [todayISO]
+    ),
   ])
 
-  const safeAtendimentos = (atendimentos as AtendimentoComMalas[]) ?? []
+  const safeAtendimentos = atendimentosResult.rows
+  const totalAtivo = totalAtivoResult.rows[0]?.count ?? 0
+  const entradasHoje = entradasHojeResult.rows[0]?.count ?? 0
+  const retiradasHoje = retiradasHojeResult.rows[0]?.count ?? 0
 
   return (
     <div className="space-y-6">
@@ -72,9 +67,9 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCards
-          totalAtivo={totalAtivo ?? 0}
-          entradasHoje={entradasHoje ?? 0}
-          retiradasHoje={retiradasHoje ?? 0}
+          totalAtivo={totalAtivo}
+          entradasHoje={entradasHoje}
+          retiradasHoje={retiradasHoje}
         />
       </div>
 
