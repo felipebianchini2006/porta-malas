@@ -93,6 +93,8 @@ export default function RelatorioPage() {
                 atendimentos={dados.atendimentos}
                 dataInicio={dataInicio}
                 dataFim={dataFim}
+                canDelete={dados.can_delete}
+                onAtendimentoExcluido={() => fetchRelatorio(dataInicio, dataFim)}
               />
             </CardContent>
           </Card>

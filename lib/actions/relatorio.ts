@@ -6,6 +6,7 @@ import { query } from "@/lib/db"
 export interface RelatorioData {
   atendimentos: RelatorioAtendimento[]
   stats: { total: number; entradas: number; retiradas: number; em_guarda: number; valor_total: number }
+  can_delete: boolean
 }
 
 export interface RelatorioAtendimento {
@@ -28,10 +29,14 @@ interface RelatorioRow extends Omit<RelatorioAtendimento, "valor_cobrado" | "qtd
 const EMPTY: RelatorioData = {
   atendimentos: [],
   stats: { total: 0, entradas: 0, retiradas: 0, em_guarda: 0, valor_total: 0 },
+  can_delete: false,
 }
 
 export async function buscarRelatorio(dataInicio: string, dataFim: string): Promise<RelatorioData> {
-  if (!(await getCurrentUser())) return EMPTY
+  const user = await getCurrentUser()
+  if (!user) return EMPTY
+  const canDelete =
+    user.role === "admin" && process.env.ENABLE_ATENDIMENTO_DELETE === "true"
   try {
     const result = await query<RelatorioRow>(
       `SELECT a.id, a.protocolo, a.cliente_nome, a.cliente_telefone, a.valor_cobrado,
@@ -58,9 +63,10 @@ export async function buscarRelatorio(dataInicio: string, dataFim: string): Prom
         em_guarda: atendimentos.filter((item) => item.status === "ativo").length,
         valor_total: atendimentos.reduce((sum, item) => sum + (item.valor_cobrado ?? 0), 0),
       },
+      can_delete: canDelete,
     }
   } catch (error) {
     console.error("Erro ao buscar relatório:", error)
-    return EMPTY
+    return { ...EMPTY, can_delete: canDelete }
   }
 }

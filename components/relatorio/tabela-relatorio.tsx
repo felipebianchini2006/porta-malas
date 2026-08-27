@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { Loader2, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 import {
   Table,
   TableBody,
@@ -10,12 +12,24 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { excluirAtendimento } from "@/lib/actions/atendimentos"
 import { type RelatorioAtendimento } from "@/lib/actions/relatorio"
 
 interface TabelaRelatorioProps {
   atendimentos: RelatorioAtendimento[]
   dataInicio: string
   dataFim: string
+  canDelete: boolean
+  onAtendimentoExcluido: () => void
 }
 
 function formatDate(dateStr: string | null): string {
@@ -34,7 +48,103 @@ function formatCurrency(value: number | null): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value)
 }
 
-export function TabelaRelatorio({ atendimentos, dataInicio, dataFim }: TabelaRelatorioProps) {
+interface ExcluirAtendimentoDialogProps {
+  atendimento: RelatorioAtendimento
+  onDeleted: () => void
+}
+
+function ExcluirAtendimentoDialog({ atendimento, onDeleted }: ExcluirAtendimentoDialogProps) {
+  const [open, setOpen] = useState(false)
+  const [confirmacao, setConfirmacao] = useState("")
+  const [isPending, startTransition] = useTransition()
+  const confirmado = confirmacao === atendimento.protocolo
+
+  function handleOpenChange(value: boolean) {
+    setOpen(value)
+    if (!value) setConfirmacao("")
+  }
+
+  function handleExcluir() {
+    if (!confirmado) return
+    startTransition(async () => {
+      const result = await excluirAtendimento({
+        atendimentoId: atendimento.id,
+        protocoloConfirmacao: confirmacao,
+      })
+      if (!result.success) {
+        toast.error(result.error || "Não foi possível excluir o atendimento")
+        return
+      }
+
+      handleOpenChange(false)
+      if (result.warning) toast.warning(result.warning)
+      else toast.success("Atendimento excluído")
+      onDeleted()
+    })
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        title={`Excluir atendimento ${atendimento.protocolo}`}
+        className="text-slate-500 hover:bg-red-50 hover:text-red-600"
+        onClick={() => setOpen(true)}
+      >
+        <Trash2 className="h-4 w-4" />
+        <span className="sr-only">Excluir atendimento {atendimento.protocolo}</span>
+      </Button>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Excluir atendimento?</DialogTitle>
+          <DialogDescription>
+            Esta ação remove permanentemente o atendimento, as malas e as fotos vinculadas.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            Para confirmar, digite o protocolo <strong>{atendimento.protocolo}</strong>.
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`confirmar-exclusao-${atendimento.id}`}>Protocolo</Label>
+            <Input
+              id={`confirmar-exclusao-${atendimento.id}`}
+              value={confirmacao}
+              onChange={(event) => setConfirmacao(event.target.value)}
+              autoComplete="off"
+              placeholder={atendimento.protocolo}
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-600 hover:bg-red-700"
+              disabled={!confirmado || isPending}
+              onClick={handleExcluir}
+            >
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Excluir definitivamente
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export function TabelaRelatorio({
+  atendimentos,
+  dataInicio,
+  dataFim,
+  canDelete,
+  onAtendimentoExcluido,
+}: TabelaRelatorioProps) {
   const [exporting, setExporting] = useState<"csv" | "xlsx" | null>(null)
 
   async function handleExport(formato: "csv" | "xlsx") {
@@ -105,6 +215,7 @@ export function TabelaRelatorio({ atendimentos, dataInicio, dataFim }: TabelaRel
               <TableHead>Status</TableHead>
               <TableHead>Check-in</TableHead>
               <TableHead>Retirada</TableHead>
+              {canDelete && <TableHead className="text-right">Ações</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -132,6 +243,14 @@ export function TabelaRelatorio({ atendimentos, dataInicio, dataFim }: TabelaRel
                 </TableCell>
                 <TableCell className="text-sm">{formatDate(a.data_checkin)}</TableCell>
                 <TableCell className="text-sm">{formatDate(a.data_retirada)}</TableCell>
+                {canDelete && (
+                  <TableCell className="text-right">
+                    <ExcluirAtendimentoDialog
+                      atendimento={a}
+                      onDeleted={onAtendimentoExcluido}
+                    />
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

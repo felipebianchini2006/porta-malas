@@ -26,6 +26,7 @@ services:
     environment:
       DATABASE_URL: postgresql://porta_malas:${POSTGRES_PASSWORD}@db:5432/porta_malas
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET obrigatoria}
+      ENABLE_ATENDIMENTO_DELETE: ${ENABLE_ATENDIMENTO_DELETE:-false}
       ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL obrigatoria}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD obrigatoria}
       ADMIN_NAME: ${ADMIN_NAME:-Administrador}
