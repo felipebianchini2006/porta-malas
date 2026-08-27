@@ -1,5 +1,5 @@
 services:
-  app:
+  bagpoint:
     networks:
       internal:
       client_proxy:

@@ -16,7 +16,7 @@ services:
     networks:
       - internal
 
-  app:
+  bagpoint:
     build:
       context: .
     restart: unless-stopped
