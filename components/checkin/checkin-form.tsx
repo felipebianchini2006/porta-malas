@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Loader2, Camera, Plus, X } from "lucide-react"
+import { Calculator, Loader2, Camera, Plus, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,6 +34,7 @@ import {
 import { MalaForm } from "@/components/checkin/mala-form"
 import { realizarCheckin, MalaInput } from "@/lib/actions/checkin"
 import { criarParceiro } from "@/lib/actions/parceiros"
+import { calcularTotalMalas } from "@/lib/utils/checkin-price"
 import type { CategoriaMala } from "@/lib/actions/categorias-mala"
 import type { Parceiro } from "@/lib/types"
 
@@ -63,7 +64,6 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
   const [novoParceiroTipo, setNovoParceiroTipo] = useState("Hotel")
   const [showNovoParceiro, setShowNovoParceiro] = useState(false)
   const [criandoParceiro, setCriandoParceiro] = useState(false)
-  const [valorEditadoManualmente, setValorEditadoManualmente] = useState(false)
 
   const form = useForm<CheckinFormValues>({
     resolver: zodResolver(checkinSchema),
@@ -75,18 +75,11 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
     },
   })
 
-  // Sugere valor_cobrado somando preços das categorias selecionadas
+  // Recalcula quando as malas mudam. O campo permanece editável até a próxima alteração nas malas.
   useEffect(() => {
-    const total = malas.reduce((sum, mala) => {
-      if (!mala.categoria_id) return sum
-      const cat = categorias.find((c) => c.id === mala.categoria_id)
-      return sum + Number(cat?.preco_diaria ?? 0)
-    }, 0)
-
-    if (!valorEditadoManualmente) {
-      form.setValue("valor_cobrado", total > 0 ? total : undefined)
-    }
-  }, [malas, categorias, form, valorEditadoManualmente])
+    const total = calcularTotalMalas(malas, categorias)
+    form.setValue("valor_cobrado", total > 0 ? total : undefined)
+  }, [malas, categorias, form])
 
   async function handleCriarParceiro() {
     if (!novoParceiroNome.trim()) return
@@ -181,31 +174,6 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
 
               <FormField
                 control={form.control}
-                name="valor_cobrado"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor cobrado (R$)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="Ex: 15.00"
-                        {...field}
-                        value={field.value ?? ""}
-                        onChange={(event) => {
-                          setValorEditadoManualmente(event.target.value !== "")
-                          field.onChange(event)
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="observacoes"
                 render={({ field }) => (
                   <FormItem>
@@ -225,8 +193,52 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
             <CardHeader>
               <CardTitle className="text-base">Malas</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-5">
               <MalaForm malas={malas} categorias={categorias} onChange={setMalas} />
+
+              <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-4">
+                <FormField
+                  control={form.control}
+                  name="valor_cobrado"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div className="flex gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                            <Calculator className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <FormLabel className="text-base font-semibold text-slate-800">
+                              Total do atendimento
+                            </FormLabel>
+                            <p className="mt-1 text-xs text-slate-600">
+                              Somado automaticamente pelas malas. Você ainda pode editar.
+                            </p>
+                          </div>
+                        </div>
+                        <FormControl>
+                          <div className="relative w-full sm:w-40">
+                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">
+                              R$
+                            </span>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              aria-label="Valor total do atendimento"
+                              className="bg-white pl-10 text-right text-lg font-semibold"
+                              placeholder="0,00"
+                              {...field}
+                              value={field.value ?? ""}
+                            />
+                          </div>
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
