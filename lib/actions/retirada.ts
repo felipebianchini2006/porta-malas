@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { query, transaction } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth/session"
+import type { FormaPagamento } from "@/lib/utils/payment"
 
 export interface SearchResult {
   atendimentos: AtendimentoComMalas[]
@@ -16,6 +17,7 @@ interface AtendimentoComMalas {
   cliente_telefone: string
   observacoes: string | null
   valor_cobrado: number | null
+  forma_pagamento: FormaPagamento | null
   status: string
   data_checkin: string
   malas: { id: string; identificacao_interna: string; descricao: string | null; status: string }[]
@@ -34,7 +36,7 @@ export async function buscarAtendimento(search: string): Promise<SearchResult> {
   try {
     const result = await query<AtendimentoSearchRow>(
       `SELECT a.id, a.protocolo, a.cliente_nome, a.cliente_telefone, a.observacoes,
-              a.valor_cobrado, a.status, a.data_checkin,
+              a.valor_cobrado, a.forma_pagamento, a.status, a.data_checkin,
               COALESCE(jsonb_agg(jsonb_build_object(
                 'id', m.id,
                 'identificacao_interna', m.identificacao_interna,

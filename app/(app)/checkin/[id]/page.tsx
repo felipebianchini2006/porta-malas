@@ -6,7 +6,9 @@ import { CheckCircle2, MessageCircle, LayoutDashboard, PlusCircle } from "lucide
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { linkCheckin } from "@/lib/utils/whatsapp"
-import { formatarTelefone } from "@/lib/utils/protocolo"
+import { formatarTelefone } from "@/lib/utils/telefone"
+import { formatarDataHora } from "@/lib/utils/date-time"
+import { labelFormaPagamento } from "@/lib/utils/payment"
 import { Atendimento, Mala, FotoMala } from "@/lib/types"
 import { SecaoFotos } from "@/components/checkin/secao-fotos"
 
@@ -46,13 +48,7 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
     fotos_malas: fotosPorMala.get(mala.id) ?? [],
   }))
 
-  const horario = new Date(atendimento.data_checkin).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  const horario = formatarDataHora(atendimento.data_checkin)
 
   const whatsappLink = linkCheckin(
     atendimento.cliente_telefone,
@@ -112,6 +108,10 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
               </span>
             </div>
           )}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Pagamento</span>
+            <span className="font-medium">{labelFormaPagamento(atendimento.forma_pagamento)}</span>
+          </div>
           {atendimento.observacoes && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">Observações</span>
@@ -132,6 +132,9 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
           <CardContent>
             <SecaoFotos
               atendimentoId={atendimento.id}
+              clienteNome={atendimento.cliente_nome}
+              protocolo={atendimento.protocolo}
+              whatsappLink={whatsappLink}
               malas={malasComFotos.map((m) => ({
                 ...m,
                 fotos: m.fotos_malas ?? [],

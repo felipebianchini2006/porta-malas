@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { realizarRetirada } from "@/lib/actions/retirada"
 import { linkRetirada } from "@/lib/utils/whatsapp"
 import type { AtendimentoResult } from "./busca-bagagem"
+import { formatarDataHora } from "@/lib/utils/date-time"
+import { formatarTelefone } from "@/lib/utils/telefone"
+import { labelFormaPagamento } from "@/lib/utils/payment"
 
 interface SuccessData {
   protocolo: string
@@ -20,27 +23,6 @@ interface SuccessData {
 interface ConfirmacaoRetiradaProps {
   atendimento: AtendimentoResult
   onNovaBusca: () => void
-}
-
-function formatarTelefone(telefone: string): string {
-  const digits = telefone.replace(/\D/g, "")
-  if (digits.length === 11) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-  }
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
-  }
-  return telefone
-}
-
-function formatarDataHora(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
 }
 
 export function ConfirmacaoRetirada({ atendimento, onNovaBusca }: ConfirmacaoRetiradaProps) {
@@ -135,6 +117,10 @@ export function ConfirmacaoRetirada({ atendimento, onNovaBusca }: ConfirmacaoRet
               </p>
             </div>
           )}
+          <div>
+            <p className="text-muted-foreground">Pagamento</p>
+            <p className="font-medium">{labelFormaPagamento(atendimento.forma_pagamento)}</p>
+          </div>
         </div>
 
         {/* Malas */}

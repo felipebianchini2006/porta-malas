@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { transaction } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth/session"
+import { normalizarTelefone } from "@/lib/utils/telefone"
+import { formaPagamentoValida, type FormaPagamento } from "@/lib/utils/payment"
 
 export interface MalaInput {
   identificacao_interna: string
@@ -16,6 +18,7 @@ export interface CheckinInput {
   cliente_telefone: string
   observacoes?: string
   valor_cobrado?: number
+  forma_pagamento: FormaPagamento
   parceiro_id?: string | null
   malas: MalaInput[]
 }
@@ -33,8 +36,12 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
   if (!input.cliente_nome.trim() || !input.cliente_telefone.trim() || input.malas.length === 0) {
     return { success: false, error: "Preencha os dados do cliente e ao menos uma mala" }
   }
+  if (!formaPagamentoValida(input.forma_pagamento)) {
+    return { success: false, error: "Selecione uma forma de pagamento válida" }
+  }
 
   try {
+    const telefoneNormalizado = normalizarTelefone(input.cliente_telefone)
     const result = await transaction(async (client) => {
       const categoryIds = [...new Set(input.malas.flatMap((mala) => mala.categoria_id ? [mala.categoria_id] : []))]
       const categories = categoryIds.length > 0
@@ -64,16 +71,17 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
 
       const atendimento = await client.query<{ id: string }>(
         `INSERT INTO atendimentos (
-           protocolo, cliente_nome, cliente_telefone, observacoes, valor_cobrado,
+           protocolo, cliente_nome, cliente_telefone, observacoes, valor_cobrado, forma_pagamento,
            parceiro_id, operador_checkin_id, status
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'ativo')
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'ativo')
          RETURNING id`,
         [
           protocolo,
           input.cliente_nome.trim(),
-          input.cliente_telefone.replace(/\D/g, ""),
+          telefoneNormalizado,
           input.observacoes?.trim() || null,
           input.valor_cobrado ?? null,
+          input.forma_pagamento,
           input.parceiro_id ?? null,
           user.id,
         ]
@@ -106,6 +114,9 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
     revalidatePath("/dashboard")
     return { success: true, atendimento_id: result.atendimentoId, protocolo: result.protocolo }
   } catch (error) {
+    if (error instanceof Error && error.message.includes("Telefone")) {
+      return { success: false, error: error.message }
+    }
     if (error instanceof Error && error.message === "CATEGORIA_INVALIDA") {
       return { success: false, error: "Uma categoria foi desativada ou não existe mais" }
     }

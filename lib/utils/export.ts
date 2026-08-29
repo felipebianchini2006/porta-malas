@@ -1,16 +1,7 @@
 import ExcelJS from "exceljs"
 import type { RelatorioAtendimento } from "../actions/relatorio.ts"
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-"
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr))
-}
+import { formatarDataHora } from "./date-time.ts"
+import { labelFormaPagamento } from "./payment.ts"
 
 function formatCurrency(value: number | null): string {
   if (!value) return "-"
@@ -22,7 +13,7 @@ function formatStatus(status: string): string {
 }
 
 export function gerarCSV(atendimentos: RelatorioAtendimento[]): string {
-  const headers = ["Protocolo", "Cliente", "Telefone", "Qtd. Malas", "Valor", "Status", "Check-in", "Retirada"]
+  const headers = ["Protocolo", "Cliente", "Telefone", "Qtd. Malas", "Valor", "Pagamento", "Status", "Check-in", "Retirada"]
 
   const rows = atendimentos.map((a) => [
     a.protocolo,
@@ -30,9 +21,10 @@ export function gerarCSV(atendimentos: RelatorioAtendimento[]): string {
     a.cliente_telefone,
     a.qtd_malas.toString(),
     formatCurrency(a.valor_cobrado),
+    labelFormaPagamento(a.forma_pagamento),
     formatStatus(a.status),
-    formatDate(a.data_checkin),
-    formatDate(a.data_retirada),
+    formatarDataHora(a.data_checkin),
+    formatarDataHora(a.data_retirada),
   ])
 
   const csvContent = [headers, ...rows]
@@ -51,6 +43,7 @@ export async function gerarExcel(atendimentos: RelatorioAtendimento[]): Promise<
     { header: "Telefone", key: "telefone", width: 15 },
     { header: "Qtd. Malas", key: "quantidade", width: 10 },
     { header: "Valor (R$)", key: "valor", width: 12 },
+    { header: "Pagamento", key: "pagamento", width: 18 },
     { header: "Status", key: "status", width: 12 },
     { header: "Check-in", key: "checkin", width: 20 },
     { header: "Retirada", key: "retirada", width: 20 },
@@ -63,16 +56,14 @@ export async function gerarExcel(atendimentos: RelatorioAtendimento[]): Promise<
       telefone: atendimento.cliente_telefone,
       quantidade: atendimento.qtd_malas,
       valor: atendimento.valor_cobrado || 0,
+      pagamento: labelFormaPagamento(atendimento.forma_pagamento),
       status: formatStatus(atendimento.status),
-      checkin: atendimento.data_checkin ? new Date(atendimento.data_checkin) : "",
-      retirada: atendimento.data_retirada ? new Date(atendimento.data_retirada) : "",
+      checkin: formatarDataHora(atendimento.data_checkin),
+      retirada: formatarDataHora(atendimento.data_retirada),
     })
   }
 
   worksheet.getRow(1).font = { bold: true }
   worksheet.getColumn("valor").numFmt = 'R$ #,##0.00'
-  worksheet.getColumn("checkin").numFmt = "dd/mm/yyyy hh:mm"
-  worksheet.getColumn("retirada").numFmt = "dd/mm/yyyy hh:mm"
-
   return new Uint8Array(await workbook.xlsx.writeBuffer())
 }

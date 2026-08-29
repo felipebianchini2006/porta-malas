@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { atualizarRole, toggleAtivo } from "@/lib/actions/usuarios"
 import type { UsuarioComEmail } from "@/lib/actions/usuarios"
+import { formatarData } from "@/lib/utils/date-time"
 
 interface UsuariosTableProps {
   usuarios: UsuarioComEmail[]
@@ -119,14 +120,6 @@ function ToggleAtivoButton({
   )
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
-}
-
 export function UsuariosTable({ usuarios, currentUserId }: UsuariosTableProps) {
   if (usuarios.length === 0) {
     return (
@@ -186,7 +179,7 @@ export function UsuariosTable({ usuarios, currentUserId }: UsuariosTableProps) {
                   />
                 </td>
                 <td className="px-4 py-3 text-slate-500">
-                  {formatDate(usuario.created_at)}
+                  {formatarData(usuario.created_at)}
                 </td>
               </tr>
             )

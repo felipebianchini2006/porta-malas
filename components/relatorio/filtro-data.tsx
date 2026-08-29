@@ -1,5 +1,7 @@
 "use client"
 
+import { dataLocalISO, inicioSemanaLocalISO } from "@/lib/utils/date-time"
+
 interface FiltroDatProps {
   dataInicio: string // YYYY-MM-DD
   dataFim: string // YYYY-MM-DD
@@ -8,15 +10,11 @@ interface FiltroDatProps {
 }
 
 function getTodayStr(): string {
-  return new Date().toISOString().split("T")[0]
+  return dataLocalISO()
 }
 
 function getMondayStr(): string {
-  const today = new Date()
-  const day = today.getDay()
-  const diff = today.getDate() - day + (day === 0 ? -6 : 1)
-  const monday = new Date(today.setDate(diff))
-  return monday.toISOString().split("T")[0]
+  return inicioSemanaLocalISO()
 }
 
 export function FiltroData({ dataInicio, dataFim, onFiltrar, loading }: FiltroDatProps) {

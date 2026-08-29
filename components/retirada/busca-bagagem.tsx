@@ -4,6 +4,7 @@ import { useState, useCallback, useTransition, useEffect, useRef } from "react"
 import { Search, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { buscarAtendimento } from "@/lib/actions/retirada"
+import type { FormaPagamento } from "@/lib/utils/payment"
 
 export interface AtendimentoResult {
   id: string
@@ -12,6 +13,7 @@ export interface AtendimentoResult {
   cliente_telefone: string
   observacoes: string | null
   valor_cobrado: number | null
+  forma_pagamento: FormaPagamento | null
   status: string
   data_checkin: string
   malas: {

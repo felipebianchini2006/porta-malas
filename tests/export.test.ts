@@ -9,6 +9,7 @@ const atendimento = {
   cliente_nome: "Cliente Teste",
   cliente_telefone: "11999999999",
   valor_cobrado: 25,
+  forma_pagamento: "pix" as const,
   status: "ativo",
   data_checkin: "2026-08-25T12:00:00.000Z",
   data_retirada: null,
@@ -20,6 +21,7 @@ test("gerarCSV preserva os dados principais", () => {
   assert.match(csv, /20260825-0001/)
   assert.match(csv, /Cliente Teste/)
   assert.match(csv, /Em Guarda/)
+  assert.match(csv, /PIX/)
 })
 
 test("gerarExcel produz um arquivo XLSX válido", async () => {

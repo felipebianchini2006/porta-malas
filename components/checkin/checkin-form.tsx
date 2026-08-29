@@ -37,12 +37,17 @@ import { criarParceiro } from "@/lib/actions/parceiros"
 import { calcularTotalMalas } from "@/lib/utils/checkin-price"
 import type { CategoriaMala } from "@/lib/actions/categorias-mala"
 import type { Parceiro } from "@/lib/types"
+import { telefoneValido } from "@/lib/utils/telefone"
+import { FORMAS_PAGAMENTO, OPCOES_FORMA_PAGAMENTO } from "@/lib/utils/payment"
 
 const checkinSchema = z.object({
   cliente_nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  cliente_telefone: z.string().min(10, "Telefone inválido"),
+  cliente_telefone: z.string().refine(telefoneValido, "Informe um telefone com código do país"),
   observacoes: z.string().optional(),
   valor_cobrado: z.coerce.number().min(0).optional(),
+  forma_pagamento: z.enum(FORMAS_PAGAMENTO, {
+    required_error: "Selecione a forma de pagamento",
+  }),
 })
 
 type CheckinFormValues = z.infer<typeof checkinSchema>
@@ -72,6 +77,7 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
       cliente_telefone: "",
       observacoes: "",
       valor_cobrado: undefined,
+      forma_pagamento: undefined,
     },
   })
 
@@ -115,6 +121,7 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
         cliente_telefone: values.cliente_telefone,
         observacoes: values.observacoes || undefined,
         valor_cobrado: values.valor_cobrado,
+        forma_pagamento: values.forma_pagamento,
         parceiro_id: parceiroId,
         malas: malasValidas,
       })
@@ -165,8 +172,16 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
                   <FormItem>
                     <FormLabel>Telefone / WhatsApp</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: (11) 99999-9999" {...field} />
+                      <Input
+                        type="tel"
+                        autoComplete="tel"
+                        placeholder="Ex: +55 11 99999-9999"
+                        {...field}
+                      />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Para estrangeiros, inclua + e o código do país.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -238,6 +253,32 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
                     </FormItem>
                   )}
                 />
+                <div className="mt-4 border-t border-amber-200 pt-4">
+                  <FormField
+                    control={form.control}
+                    name="forma_pagamento"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Forma de pagamento</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="Selecione como foi pago" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {OPCOES_FORMA_PAGAMENTO.map((opcao) => (
+                              <SelectItem key={opcao.value} value={opcao.value}>
+                                {opcao.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

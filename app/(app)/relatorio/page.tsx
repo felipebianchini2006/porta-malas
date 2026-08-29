@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FiltroData } from "@/components/relatorio/filtro-data"
 import { TabelaRelatorio } from "@/components/relatorio/tabela-relatorio"
 import { buscarRelatorio, type RelatorioData } from "@/lib/actions/relatorio"
+import { dataLocalISO } from "@/lib/utils/date-time"
+import { labelFormaPagamento } from "@/lib/utils/payment"
 
 function getTodayStr(): string {
-  return new Date().toISOString().split("T")[0]
+  return dataLocalISO()
 }
 
 function formatCurrency(value: number): string {
@@ -83,6 +85,32 @@ export default function RelatorioPage() {
             <StatCard label="Em Guarda" value={dados.stats.em_guarda} />
             <StatCard label="Valor Total" value={formatCurrency(dados.stats.valor_total)} />
           </div>
+
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle className="text-lg">Recebimentos por forma de pagamento</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                {dados.pagamentos.map((pagamento) => (
+                  <div
+                    key={pagamento.forma_pagamento ?? "nao-informado"}
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+                  >
+                    <p className="text-xs font-medium text-slate-600">
+                      {labelFormaPagamento(pagamento.forma_pagamento)}
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-slate-800">
+                      {formatCurrency(pagamento.valor_total)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {pagamento.quantidade} atendimento{pagamento.quantidade === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
           <Card className="bg-white">
             <CardHeader>

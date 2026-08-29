@@ -23,6 +23,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { excluirAtendimento } from "@/lib/actions/atendimentos"
 import { type RelatorioAtendimento } from "@/lib/actions/relatorio"
+import { formatarDataHora } from "@/lib/utils/date-time"
+import { labelFormaPagamento } from "@/lib/utils/payment"
+import { formatarTelefone } from "@/lib/utils/telefone"
 
 interface TabelaRelatorioProps {
   atendimentos: RelatorioAtendimento[]
@@ -30,17 +33,6 @@ interface TabelaRelatorioProps {
   dataFim: string
   canDelete: boolean
   onAtendimentoExcluido: () => void
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-"
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr))
 }
 
 function formatCurrency(value: number | null): string {
@@ -212,6 +204,7 @@ export function TabelaRelatorio({
               <TableHead>Telefone</TableHead>
               <TableHead className="text-center">Qtd. Malas</TableHead>
               <TableHead>Valor</TableHead>
+              <TableHead>Pagamento</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Check-in</TableHead>
               <TableHead>Retirada</TableHead>
@@ -227,9 +220,10 @@ export function TabelaRelatorio({
                   </span>
                 </TableCell>
                 <TableCell className="font-medium">{a.cliente_nome}</TableCell>
-                <TableCell className="text-sm text-slate-600">{a.cliente_telefone}</TableCell>
+                <TableCell className="text-sm text-slate-600">{formatarTelefone(a.cliente_telefone)}</TableCell>
                 <TableCell className="text-center text-sm">{a.qtd_malas}</TableCell>
                 <TableCell className="text-sm">{formatCurrency(a.valor_cobrado)}</TableCell>
+                <TableCell className="text-sm">{labelFormaPagamento(a.forma_pagamento)}</TableCell>
                 <TableCell>
                   {a.status === "ativo" ? (
                     <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
@@ -241,8 +235,8 @@ export function TabelaRelatorio({
                     </span>
                   )}
                 </TableCell>
-                <TableCell className="text-sm">{formatDate(a.data_checkin)}</TableCell>
-                <TableCell className="text-sm">{formatDate(a.data_retirada)}</TableCell>
+                <TableCell className="text-sm">{formatarDataHora(a.data_checkin)}</TableCell>
+                <TableCell className="text-sm">{formatarDataHora(a.data_retirada)}</TableCell>
                 {canDelete && (
                   <TableCell className="text-right">
                     <ExcluirAtendimentoDialog

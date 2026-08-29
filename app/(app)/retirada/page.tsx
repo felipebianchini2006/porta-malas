@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BuscaBagagem, type AtendimentoResult } from "@/components/retirada/busca-bagagem"
 import { ConfirmacaoRetirada } from "@/components/retirada/confirmacao-retirada"
+import { formatarTelefone } from "@/lib/utils/telefone"
 
 export default function RetiradaPage() {
   return (
@@ -15,17 +16,6 @@ export default function RetiradaPage() {
       <RetiradaContent />
     </Suspense>
   )
-}
-
-function formatarTelefone(telefone: string): string {
-  const digits = telefone.replace(/\D/g, "")
-  if (digits.length === 11) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-  }
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
-  }
-  return telefone
 }
 
 function RetiradaContent() {

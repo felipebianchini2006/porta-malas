@@ -2,10 +2,18 @@
 
 import { getCurrentUser } from "@/lib/auth/session"
 import { query } from "@/lib/db"
+import { FORMAS_PAGAMENTO, type FormaPagamento } from "@/lib/utils/payment"
+
+export interface ResumoPagamento {
+  forma_pagamento: FormaPagamento | null
+  quantidade: number
+  valor_total: number
+}
 
 export interface RelatorioData {
   atendimentos: RelatorioAtendimento[]
   stats: { total: number; entradas: number; retiradas: number; em_guarda: number; valor_total: number }
+  pagamentos: ResumoPagamento[]
   can_delete: boolean
 }
 
@@ -15,6 +23,7 @@ export interface RelatorioAtendimento {
   cliente_nome: string
   cliente_telefone: string
   valor_cobrado: number | null
+  forma_pagamento: FormaPagamento | null
   status: string
   data_checkin: string
   data_retirada: string | null
@@ -29,6 +38,7 @@ interface RelatorioRow extends Omit<RelatorioAtendimento, "valor_cobrado" | "qtd
 const EMPTY: RelatorioData = {
   atendimentos: [],
   stats: { total: 0, entradas: 0, retiradas: 0, em_guarda: 0, valor_total: 0 },
+  pagamentos: [],
   can_delete: false,
 }
 
@@ -40,6 +50,7 @@ export async function buscarRelatorio(dataInicio: string, dataFim: string): Prom
   try {
     const result = await query<RelatorioRow>(
       `SELECT a.id, a.protocolo, a.cliente_nome, a.cliente_telefone, a.valor_cobrado,
+              a.forma_pagamento,
               a.status, a.data_checkin, a.data_retirada, count(m.id) AS qtd_malas
          FROM atendimentos a
          LEFT JOIN malas m ON m.atendimento_id = a.id
@@ -54,8 +65,25 @@ export async function buscarRelatorio(dataInicio: string, dataFim: string): Prom
       valor_cobrado: row.valor_cobrado === null ? null : Number(row.valor_cobrado),
       qtd_malas: Number(row.qtd_malas),
     }))
+    const pagamentos: ResumoPagamento[] = FORMAS_PAGAMENTO.map((formaPagamento) => {
+      const itens = atendimentos.filter((item) => item.forma_pagamento === formaPagamento)
+      return {
+        forma_pagamento: formaPagamento,
+        quantidade: itens.length,
+        valor_total: itens.reduce((sum, item) => sum + (item.valor_cobrado ?? 0), 0),
+      }
+    })
+    const semForma = atendimentos.filter((item) => item.forma_pagamento === null)
+    if (semForma.length > 0) {
+      pagamentos.push({
+        forma_pagamento: null,
+        quantidade: semForma.length,
+        valor_total: semForma.reduce((sum, item) => sum + (item.valor_cobrado ?? 0), 0),
+      })
+    }
     return {
       atendimentos,
+      pagamentos,
       stats: {
         total: atendimentos.length,
         entradas: atendimentos.length,

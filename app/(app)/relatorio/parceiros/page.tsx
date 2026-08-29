@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FiltroData } from "@/components/relatorio/filtro-data"
 import { buscarRelatorioParceiros, type RelatorioParceiro } from "@/lib/actions/parceiros"
 import { Download } from "lucide-react"
+import { dataLocalISO } from "@/lib/utils/date-time"
 
 function getTodayStr(): string {
-  return new Date().toISOString().split("T")[0]
+  return dataLocalISO()
 }
 
 function getFirstDayOfMonthStr(): string {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0]
+  return `${dataLocalISO().slice(0, 8)}01`
 }
 
 function formatCurrency(value: number): string {

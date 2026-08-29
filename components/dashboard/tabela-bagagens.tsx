@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { Atendimento, Mala } from "@/lib/types"
+import { formatarDataHora } from "@/lib/utils/date-time"
 
 interface AtendimentoComMalas extends Atendimento {
   malas: Mala[]
@@ -32,14 +33,6 @@ interface AtendimentoComMalas extends Atendimento {
 interface TabelaBagagensProps {
   atendimentos: AtendimentoComMalas[]
 }
-
-const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-})
 
 function formatTempo(dataCheckin: string): string {
   const checkin = new Date(dataCheckin)
@@ -92,7 +85,7 @@ export function TabelaBagagens({ atendimentos }: TabelaBagagensProps) {
       }),
       columnHelper.accessor("data_checkin", {
         header: "Data Check-in",
-        cell: (info) => dateFormatter.format(new Date(info.getValue())),
+        cell: (info) => formatarDataHora(info.getValue()),
       }),
       columnHelper.display({
         id: "tempo",

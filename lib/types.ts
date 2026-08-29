@@ -1,3 +1,5 @@
+import type { FormaPagamento } from "@/lib/utils/payment"
+
 export type UserRole = "admin" | "operador"
 export type TipoParceiro = "Hotel" | "Airbnb" | "Hostel" | "Rua" | "Outro"
 
@@ -27,6 +29,7 @@ export interface Atendimento {
   cliente_telefone: string
   observacoes: string | null
   valor_cobrado: number | null
+  forma_pagamento: FormaPagamento | null
   status: StatusAtendimento
   operador_checkin_id: string
   operador_retirada_id: string | null

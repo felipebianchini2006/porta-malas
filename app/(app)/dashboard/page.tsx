@@ -13,10 +13,6 @@ interface AtendimentoComMalas extends Atendimento {
 }
 
 export default async function DashboardPage() {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const todayISO = today.toISOString()
-
   const [
     atendimentosResult,
     totalAtivoResult,
@@ -33,10 +29,16 @@ export default async function DashboardPage() {
         ORDER BY a.data_checkin DESC`
     ),
     query<{ count: number }>("SELECT COUNT(*)::int AS count FROM atendimentos WHERE status = 'ativo'"),
-    query<{ count: number }>("SELECT COUNT(*)::int AS count FROM atendimentos WHERE data_checkin >= $1", [todayISO]),
     query<{ count: number }>(
-      "SELECT COUNT(*)::int AS count FROM atendimentos WHERE status = 'retirado' AND data_retirada >= $1",
-      [todayISO]
+      `SELECT COUNT(*)::int AS count
+         FROM atendimentos
+        WHERE data_checkin >= ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date::timestamp AT TIME ZONE 'America/Sao_Paulo')`
+    ),
+    query<{ count: number }>(
+      `SELECT COUNT(*)::int AS count
+         FROM atendimentos
+        WHERE status = 'retirado'
+          AND data_retirada >= ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date::timestamp AT TIME ZONE 'America/Sao_Paulo')`
     ),
   ])
 

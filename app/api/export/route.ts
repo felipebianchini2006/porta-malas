@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/auth/session"
 import { buscarRelatorio } from "@/lib/actions/relatorio"
 import { gerarCSV, gerarExcel } from "@/lib/utils/export"
+import { dataLocalISO } from "@/lib/utils/date-time"
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser()
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const formato = searchParams.get("formato") // "csv" | "xlsx"
-  const dataInicio = searchParams.get("inicio") || new Date().toISOString().split("T")[0]
+  const dataInicio = searchParams.get("inicio") || dataLocalISO()
   const dataFim = searchParams.get("fim") || dataInicio
 
   const { atendimentos } = await buscarRelatorio(dataInicio, dataFim)
