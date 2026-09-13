@@ -2,11 +2,20 @@ import type { FormaPagamento } from "@/lib/utils/payment"
 
 export type UserRole = "admin" | "operador"
 export type TipoParceiro = "Hotel" | "Airbnb" | "Hostel" | "Rua" | "Outro"
+export type GrupoParceiro = "Hospedagem" | "Indicação Local"
+export type StatusParceiro = "pendente_cadastro" | "pendente_financeiro" | "ativo" | "inativo" | "bloqueado"
 
 export interface Parceiro {
   id: string
   nome: string
   tipo: TipoParceiro
+  grupo: GrupoParceiro
+  categoria: string
+  codigo_indicacao: string
+  desconto_percentual: number
+  comissao_percentual: number
+  dia_repasse: number
+  status: StatusParceiro
   ativo: boolean
   created_at: string
 }
@@ -27,6 +36,8 @@ export interface Atendimento {
   protocolo: string
   cliente_nome: string
   cliente_telefone: string
+  cliente_documento_tipo?: "CPF" | "Passaporte" | null
+  cliente_documento?: string | null
   observacoes: string | null
   valor_cobrado: number | null
   forma_pagamento: FormaPagamento | null
@@ -37,6 +48,15 @@ export interface Atendimento {
   data_retirada: string | null
   created_at: string
   parceiro_id?: string | null
+  valor_bruto?: number | null
+  desconto_percentual_aplicado?: number | null
+  desconto_valor?: number | null
+  comissao_percentual_aplicada?: number | null
+  comissao_valor?: number | null
+  valor_liquido_bagpoint?: number | null
+  competencia?: string | null
+  aceite_token?: string | null
+  aceite_em?: string | null
   // relations
   operador_checkin?: Usuario
   operador_retirada?: Usuario

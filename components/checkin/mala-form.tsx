@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { MalaInput } from "@/lib/actions/checkin"
 import { Plus, X } from "lucide-react"
 import { CategoriaMalaSelector } from "./categoria-mala-selector"
@@ -61,18 +62,25 @@ export function MalaForm({ malas, categorias, onChange }: MalaFormProps) {
             </div>
 
             <div className="flex-1 grid grid-cols-2 gap-2">
-              <Input
-                placeholder="ID Interno (ex: A1)"
-                value={mala.identificacao_interna}
-                onChange={(e) => atualizarMala(index, "identificacao_interna", e.target.value)}
-                className="bg-white"
-              />
-              <Input
-                placeholder="Descrição"
-                value={mala.descricao ?? ""}
-                onChange={(e) => atualizarMala(index, "descricao", e.target.value)}
-                className="bg-white"
-              />
+              <div className="space-y-1">
+                <Label className="text-xs">Lacre *</Label>
+                <Input
+                  placeholder="Ex: A1"
+                  aria-label={`Lacre da mala ${index + 1}`}
+                  value={mala.identificacao_interna}
+                  onChange={(e) => atualizarMala(index, "identificacao_interna", e.target.value)}
+                  className="bg-white"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Descrição</Label>
+                <Input
+                  placeholder="Descrição da mala"
+                  value={mala.descricao ?? ""}
+                  onChange={(e) => atualizarMala(index, "descricao", e.target.value)}
+                  className="bg-white"
+                />
+              </div>
             </div>
 
             <Button

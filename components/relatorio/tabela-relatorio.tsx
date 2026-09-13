@@ -201,6 +201,7 @@ export function TabelaRelatorio({
             <TableRow>
               <TableHead>Protocolo</TableHead>
               <TableHead>Cliente</TableHead>
+              <TableHead>Documento</TableHead>
               <TableHead>Telefone</TableHead>
               <TableHead className="text-center">Qtd. Malas</TableHead>
               <TableHead>Valor</TableHead>
@@ -220,6 +221,7 @@ export function TabelaRelatorio({
                   </span>
                 </TableCell>
                 <TableCell className="font-medium">{a.cliente_nome}</TableCell>
+                <TableCell className="text-sm text-slate-600">{[a.cliente_documento_tipo, a.cliente_documento].filter(Boolean).join(": ") || "-"}</TableCell>
                 <TableCell className="text-sm text-slate-600">{formatarTelefone(a.cliente_telefone)}</TableCell>
                 <TableCell className="text-center text-sm">{a.qtd_malas}</TableCell>
                 <TableCell className="text-sm">{formatCurrency(a.valor_cobrado)}</TableCell>

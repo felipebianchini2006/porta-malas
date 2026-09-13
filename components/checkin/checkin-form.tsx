@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Calculator, Loader2, Camera, Plus, X } from "lucide-react"
+import { Calculator, Loader2, Camera } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,8 +33,8 @@ import {
 } from "@/components/ui/select"
 import { MalaForm } from "@/components/checkin/mala-form"
 import { realizarCheckin, MalaInput } from "@/lib/actions/checkin"
-import { criarParceiro } from "@/lib/actions/parceiros"
 import { calcularTotalMalas } from "@/lib/utils/checkin-price"
+import { calcularProgramaParceiro } from "@/lib/utils/partner-program"
 import type { CategoriaMala } from "@/lib/actions/categorias-mala"
 import type { Parceiro } from "@/lib/types"
 import { telefoneValido } from "@/lib/utils/telefone"
@@ -42,6 +42,10 @@ import { FORMAS_PAGAMENTO, OPCOES_FORMA_PAGAMENTO } from "@/lib/utils/payment"
 
 const checkinSchema = z.object({
   cliente_nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  cliente_documento_tipo: z.enum(["CPF", "Passaporte"], {
+    required_error: "Selecione o tipo de documento",
+  }),
+  cliente_documento: z.string().trim().min(3, "CPF ou passaporte é obrigatório"),
   cliente_telefone: z.string().refine(telefoneValido, "Informe um telefone com código do país"),
   observacoes: z.string().optional(),
   valor_cobrado: z.coerce.number().min(0).optional(),
@@ -63,17 +67,14 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
   const [malas, setMalas] = useState<MalaInput[]>([
     { identificacao_interna: "A1", descricao: "", categoria_id: null },
   ])
-  const [parceiros, setParceiros] = useState<Parceiro[]>(parceirosIniciais)
   const [parceiroId, setParceiroId] = useState<string | null>(null)
-  const [novoParceiroNome, setNovoParceiroNome] = useState("")
-  const [novoParceiroTipo, setNovoParceiroTipo] = useState("Hotel")
-  const [showNovoParceiro, setShowNovoParceiro] = useState(false)
-  const [criandoParceiro, setCriandoParceiro] = useState(false)
 
   const form = useForm<CheckinFormValues>({
     resolver: zodResolver(checkinSchema),
     defaultValues: {
       cliente_nome: "",
+      cliente_documento_tipo: "CPF",
+      cliente_documento: "",
       cliente_telefone: "",
       observacoes: "",
       valor_cobrado: undefined,
@@ -81,27 +82,19 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
     },
   })
 
-  // Recalcula quando as malas mudam. O campo permanece editável até a próxima alteração nas malas.
-  useEffect(() => {
-    const total = calcularTotalMalas(malas, categorias)
-    form.setValue("valor_cobrado", total > 0 ? total : undefined)
-  }, [malas, categorias, form])
+  const parceiroSelecionado = parceirosIniciais.find((parceiro) => parceiro.id === parceiroId)
 
-  async function handleCriarParceiro() {
-    if (!novoParceiroNome.trim()) return
-    setCriandoParceiro(true)
-    const result = await criarParceiro(novoParceiroNome.trim(), novoParceiroTipo)
-    setCriandoParceiro(false)
-    if (result.success && result.parceiro) {
-      setParceiros((prev) => [...prev, result.parceiro!])
-      setParceiroId(result.parceiro.id)
-      setNovoParceiroNome("")
-      setShowNovoParceiro(false)
-      toast.success("Parceiro criado!")
-    } else {
-      toast.error(result.error ?? "Erro ao criar parceiro")
-    }
-  }
+  useEffect(() => {
+    const valorBase = calcularTotalMalas(malas, categorias)
+    const total = parceiroSelecionado
+      ? calcularProgramaParceiro({
+          valorBase,
+          descontoPercentual: parceiroSelecionado.desconto_percentual,
+          comissaoPercentual: parceiroSelecionado.comissao_percentual,
+        }).valorCobrado
+      : valorBase
+    form.setValue("valor_cobrado", total > 0 ? total : undefined)
+  }, [malas, categorias, form, parceiroSelecionado])
 
   async function onSubmit(values: CheckinFormValues) {
     if (malas.length === 0) {
@@ -109,21 +102,22 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
       return
     }
 
-    const malasValidas = malas.filter((m) => m.identificacao_interna.trim() !== "")
-    if (malasValidas.length === 0) {
-      toast.error("Cada mala precisa ter um ID interno.")
+    if (malas.some((m) => !m.identificacao_interna.trim())) {
+      toast.error("Informe o lacre de todas as malas.")
       return
     }
 
     startTransition(async () => {
       const result = await realizarCheckin({
         cliente_nome: values.cliente_nome,
+        cliente_documento_tipo: values.cliente_documento_tipo,
+        cliente_documento: values.cliente_documento,
         cliente_telefone: values.cliente_telefone,
         observacoes: values.observacoes || undefined,
         valor_cobrado: values.valor_cobrado,
         forma_pagamento: values.forma_pagamento,
         parceiro_id: parceiroId,
-        malas: malasValidas,
+        malas,
       })
 
       if (!result.success) {
@@ -156,7 +150,7 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
                 name="cliente_nome"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome completo</FormLabel>
+                    <FormLabel>Nome completo *</FormLabel>
                     <FormControl>
                       <Input placeholder="Ex: João da Silva" {...field} />
                     </FormControl>
@@ -170,7 +164,7 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
                 name="cliente_telefone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefone / WhatsApp</FormLabel>
+                    <FormLabel>Telefone / WhatsApp *</FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
@@ -186,6 +180,34 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
                   </FormItem>
                 )}
               />
+
+              <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+                <FormField
+                  control={form.control}
+                  name="cliente_documento_tipo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Documento *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent><SelectItem value="CPF">CPF</SelectItem><SelectItem value="Passaporte">Passaporte</SelectItem></SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cliente_documento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número do documento *</FormLabel>
+                      <FormControl><Input placeholder="Informe o CPF ou passaporte" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
@@ -298,7 +320,7 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhum</SelectItem>
-                  {parceiros.map((p) => (
+                  {parceirosIniciais.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.nome} <span className="text-muted-foreground">({p.tipo})</span>
                     </SelectItem>
@@ -306,54 +328,9 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
                 </SelectContent>
               </Select>
 
-              {!showNovoParceiro ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-amber-700 hover:text-amber-800 hover:bg-amber-50 px-0"
-                  onClick={() => setShowNovoParceiro(true)}
-                >
-                  <Plus className="h-3.5 w-3.5 mr-1" />
-                  Novo parceiro
-                </Button>
-              ) : (
-                <div className="flex gap-2 items-end flex-wrap">
-                  <div className="flex-1 min-w-[140px]">
-                    <Input
-                      placeholder="Nome do parceiro"
-                      value={novoParceiroNome}
-                      onChange={(e) => setNovoParceiroNome(e.target.value)}
-                    />
-                  </div>
-                  <Select value={novoParceiroTipo} onValueChange={setNovoParceiroTipo}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Hotel">Hotel</SelectItem>
-                      <SelectItem value="Airbnb">Airbnb</SelectItem>
-                      <SelectItem value="Hostel">Hostel</SelectItem>
-                      <SelectItem value="Rua">Rua</SelectItem>
-                      <SelectItem value="Outro">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleCriarParceiro}
-                    disabled={criandoParceiro}
-                  >
-                    {criandoParceiro ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Criar"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowNovoParceiro(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+              {parceiroSelecionado && (
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                  Código {parceiroSelecionado.codigo_indicacao} · {parceiroSelecionado.desconto_percentual}% de desconto ao cliente · {parceiroSelecionado.comissao_percentual}% de comissão.
                 </div>
               )}
             </CardContent>

@@ -13,11 +13,12 @@ function formatStatus(status: string): string {
 }
 
 export function gerarCSV(atendimentos: RelatorioAtendimento[]): string {
-  const headers = ["Protocolo", "Cliente", "Telefone", "Qtd. Malas", "Valor", "Pagamento", "Status", "Check-in", "Retirada"]
+  const headers = ["Protocolo", "Cliente", "Documento", "Telefone", "Qtd. Malas", "Valor", "Pagamento", "Status", "Check-in", "Retirada"]
 
   const rows = atendimentos.map((a) => [
     a.protocolo,
     a.cliente_nome,
+    [a.cliente_documento_tipo, a.cliente_documento].filter(Boolean).join(": "),
     a.cliente_telefone,
     a.qtd_malas.toString(),
     formatCurrency(a.valor_cobrado),
@@ -40,6 +41,7 @@ export async function gerarExcel(atendimentos: RelatorioAtendimento[]): Promise<
   worksheet.columns = [
     { header: "Protocolo", key: "protocolo", width: 12 },
     { header: "Cliente", key: "cliente", width: 30 },
+    { header: "Documento", key: "documento", width: 22 },
     { header: "Telefone", key: "telefone", width: 15 },
     { header: "Qtd. Malas", key: "quantidade", width: 10 },
     { header: "Valor (R$)", key: "valor", width: 12 },
@@ -53,6 +55,7 @@ export async function gerarExcel(atendimentos: RelatorioAtendimento[]): Promise<
     worksheet.addRow({
       protocolo: atendimento.protocolo,
       cliente: atendimento.cliente_nome,
+      documento: [atendimento.cliente_documento_tipo, atendimento.cliente_documento].filter(Boolean).join(": "),
       telefone: atendimento.cliente_telefone,
       quantidade: atendimento.qtd_malas,
       valor: atendimento.valor_cobrado || 0,

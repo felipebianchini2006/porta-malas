@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, PackagePlus, PackageCheck, BarChart3, Users, Handshake, Tags } from "lucide-react"
+import { LayoutDashboard, PackagePlus, PackageCheck, BarChart3, Users, Handshake, Tags, CircleDollarSign } from "lucide-react"
 
 const navItems = [
   { label: "Painel", href: "/dashboard", icon: LayoutDashboard },
@@ -14,7 +14,8 @@ const navItems = [
 
 const adminNavItems = [
   { label: "Categorias", href: "/admin/categorias", icon: Tags },
-  { label: "Parceiros", href: "/relatorio/parceiros", icon: Handshake },
+  { label: "Parceiros", href: "/admin/parceiros", icon: Handshake },
+  { label: "Repasses", href: "/admin/repasses", icon: CircleDollarSign },
   { label: "Usuários", href: "/admin/usuarios", icon: Users },
 ]
 

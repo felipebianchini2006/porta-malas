@@ -21,6 +21,8 @@ export interface RelatorioAtendimento {
   id: string
   protocolo: string
   cliente_nome: string
+  cliente_documento_tipo: "CPF" | "Passaporte" | null
+  cliente_documento: string | null
   cliente_telefone: string
   valor_cobrado: number | null
   forma_pagamento: FormaPagamento | null
@@ -49,7 +51,8 @@ export async function buscarRelatorio(dataInicio: string, dataFim: string): Prom
     user.role === "admin" && process.env.ENABLE_ATENDIMENTO_DELETE === "true"
   try {
     const result = await query<RelatorioRow>(
-      `SELECT a.id, a.protocolo, a.cliente_nome, a.cliente_telefone, a.valor_cobrado,
+      `SELECT a.id, a.protocolo, a.cliente_nome, a.cliente_documento_tipo,
+              a.cliente_documento, a.cliente_telefone, a.valor_cobrado,
               a.forma_pagamento,
               a.status, a.data_checkin, a.data_retirada, count(m.id) AS qtd_malas
          FROM atendimentos a

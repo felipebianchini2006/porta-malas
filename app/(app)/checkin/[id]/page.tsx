@@ -1,11 +1,12 @@
 import { query } from "@/lib/db"
+import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { CheckCircle2, MessageCircle, LayoutDashboard, PlusCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { linkCheckin } from "@/lib/utils/whatsapp"
+import { linkCheckinComAceite } from "@/lib/utils/whatsapp"
 import { formatarTelefone } from "@/lib/utils/telefone"
 import { formatarDataHora } from "@/lib/utils/date-time"
 import { labelFormaPagamento } from "@/lib/utils/payment"
@@ -49,13 +50,19 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
   }))
 
   const horario = formatarDataHora(atendimento.data_checkin)
+  const headerStore = await headers()
+  const protocoloHttp = headerStore.get("x-forwarded-proto") ?? "http"
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "localhost:3000"
+  const origin = process.env.APP_URL?.replace(/\/$/, "") || `${protocoloHttp}://${host}`
+  const aceiteUrl = atendimento.aceite_token ? `${origin}/aceite/${atendimento.aceite_token}` : origin
 
-  const whatsappLink = linkCheckin(
-    atendimento.cliente_telefone,
-    atendimento.cliente_nome,
-    atendimento.protocolo,
-    horario
-  )
+  const whatsappLink = linkCheckinComAceite({
+    telefone: atendimento.cliente_telefone,
+    nome: atendimento.cliente_nome,
+    protocolo: atendimento.protocolo,
+    horario,
+    aceiteUrl,
+  })
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -95,6 +102,10 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
             <span className="font-medium">{formatarTelefone(atendimento.cliente_telefone)}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-muted-foreground">{atendimento.cliente_documento_tipo ?? "Documento"}</span>
+            <span className="font-medium">{atendimento.cliente_documento}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-muted-foreground">Horário</span>
             <span className="font-medium">{horario}</span>
           </div>
@@ -111,6 +122,10 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
           <div className="flex justify-between">
             <span className="text-muted-foreground">Pagamento</span>
             <span className="font-medium">{labelFormaPagamento(atendimento.forma_pagamento)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Aceite das regras</span>
+            <span className={atendimento.aceite_em ? "font-medium text-green-700" : "font-medium text-amber-700"}>{atendimento.aceite_em ? "Confirmado" : "Pendente"}</span>
           </div>
           {atendimento.observacoes && (
             <div className="flex justify-between">

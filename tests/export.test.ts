@@ -7,6 +7,8 @@ const atendimento = {
   id: "00000000-0000-4000-8000-000000000001",
   protocolo: "20260825-0001",
   cliente_nome: "Cliente Teste",
+  cliente_documento_tipo: "CPF" as const,
+  cliente_documento: "123.456.789-00",
   cliente_telefone: "11999999999",
   valor_cobrado: 25,
   forma_pagamento: "pix" as const,
@@ -20,6 +22,7 @@ test("gerarCSV preserva os dados principais", () => {
   const csv = gerarCSV([atendimento])
   assert.match(csv, /20260825-0001/)
   assert.match(csv, /Cliente Teste/)
+  assert.match(csv, /123\.456\.789-00/)
   assert.match(csv, /Em Guarda/)
   assert.match(csv, /PIX/)
 })
