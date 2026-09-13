@@ -3,6 +3,7 @@ import test from "node:test"
 
 import {
   calcularProgramaParceiro,
+  categoriaPodeReceberDescontoParceiro,
   gerarCodigoIndicacao,
   statusAlertaRepasse,
 } from "../lib/utils/partner-program.ts"
@@ -44,6 +45,12 @@ test("arredonda cada efeito financeiro em centavos", () => {
 test("gera código estável e legível conforme o grupo", () => {
   assert.equal(gerarCodigoIndicacao("Hospedagem", "Pousada São João"), "HOS-POUSADA-SAO-JOAO")
   assert.equal(gerarCodigoIndicacao("Indicação Local", "Café da Praça"), "IND-CAFE-DA-PRACA")
+})
+
+test("impede aplicar o programa sobre categoria com desconto de parceiro já embutido", () => {
+  assert.equal(categoriaPodeReceberDescontoParceiro({ nome: "Mala padrão" }), true)
+  assert.equal(categoriaPodeReceberDescontoParceiro({ nome: "Mala PARCEIRO" }), false)
+  assert.equal(categoriaPodeReceberDescontoParceiro({ nome: "Mala", descricao: "Tarifa para parceiro" }), false)
 })
 
 test("classifica alertas de repasse pelos dias restantes", () => {

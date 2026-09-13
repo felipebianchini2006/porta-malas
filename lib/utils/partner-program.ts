@@ -51,6 +51,17 @@ export function gerarCodigoIndicacao(grupo: GrupoParceiro, nome: string): string
   return `${prefixo}-${slug || "PARCEIRO"}`
 }
 
+export function categoriaPodeReceberDescontoParceiro(categoria: {
+  nome: string
+  descricao?: string | null
+  exemplos?: string | null
+}): boolean {
+  const texto = [categoria.nome, categoria.descricao, categoria.exemplos]
+    .filter(Boolean)
+    .join(" ")
+  return !/\bPARCEIRO\b/i.test(texto)
+}
+
 export function statusAlertaRepasse(
   diasRestantes: number,
   status: StatusRepasse

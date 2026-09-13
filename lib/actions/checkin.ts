@@ -6,7 +6,7 @@ import { transaction } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth/session"
 import { normalizarTelefone } from "@/lib/utils/telefone"
 import { formaPagamentoValida, type FormaPagamento } from "@/lib/utils/payment"
-import { calcularProgramaParceiro } from "@/lib/utils/partner-program"
+import { calcularProgramaParceiro, categoriaPodeReceberDescontoParceiro } from "@/lib/utils/partner-program"
 
 export interface MalaInput {
   identificacao_interna: string
@@ -52,10 +52,12 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
         ? await client.query<{
             id: string
             nome: string
+            exemplos: string
+            descricao: string
             preco_diaria: string
             preco_meio_periodo: string
           }>(
-            `SELECT id, nome, preco_diaria, preco_meio_periodo
+            `SELECT id, nome, exemplos, descricao, preco_diaria, preco_meio_periodo
                FROM categorias_mala
               WHERE id = ANY($1::text[]) AND ativo = true`,
             [categoryIds]
@@ -78,6 +80,9 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
       if (input.parceiro_id && !parceiro?.rows[0]) throw new Error("PARCEIRO_INVALIDO")
       if (parceiro && input.malas.some((mala) => !mala.categoria_id)) {
         throw new Error("CATEGORIA_OBRIGATORIA_PARCEIRO")
+      }
+      if (parceiro && [...categoriesById.values()].some((categoria) => !categoriaPodeReceberDescontoParceiro(categoria))) {
+        throw new Error("CATEGORIA_COM_DESCONTO_EMBUTIDO")
       }
 
       const valorBaseCategorias = input.malas.reduce((total, mala) => {
@@ -173,6 +178,9 @@ export async function realizarCheckin(input: CheckinInput): Promise<CheckinResul
     }
     if (error instanceof Error && error.message === "CATEGORIA_OBRIGATORIA_PARCEIRO") {
       return { success: false, error: "Selecione a categoria de todas as malas para aplicar o programa de parceiros" }
+    }
+    if (error instanceof Error && error.message === "CATEGORIA_COM_DESCONTO_EMBUTIDO") {
+      return { success: false, error: "Selecione a tarifa normal da mala; o desconto do parceiro será aplicado automaticamente" }
     }
     if (error instanceof Error && error.message === "MALA_INVALIDA") {
       return { success: false, error: "Informe o lacre de todas as malas" }

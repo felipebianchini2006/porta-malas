@@ -34,7 +34,7 @@ import {
 import { MalaForm } from "@/components/checkin/mala-form"
 import { realizarCheckin, MalaInput } from "@/lib/actions/checkin"
 import { calcularTotalMalas } from "@/lib/utils/checkin-price"
-import { calcularProgramaParceiro } from "@/lib/utils/partner-program"
+import { calcularProgramaParceiro, categoriaPodeReceberDescontoParceiro } from "@/lib/utils/partner-program"
 import type { CategoriaMala } from "@/lib/actions/categorias-mala"
 import type { Parceiro } from "@/lib/types"
 import { telefoneValido } from "@/lib/utils/telefone"
@@ -83,6 +83,21 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
   })
 
   const parceiroSelecionado = parceirosIniciais.find((parceiro) => parceiro.id === parceiroId)
+  const categoriasDisponiveis = parceiroSelecionado
+    ? categorias.filter(categoriaPodeReceberDescontoParceiro)
+    : categorias
+
+  function selecionarParceiro(value: string) {
+    const id = value === "none" ? null : value
+    setParceiroId(id)
+    if (!id) return
+    const idsPermitidos = new Set(categorias.filter(categoriaPodeReceberDescontoParceiro).map((categoria) => categoria.id))
+    setMalas((current) => current.map((mala) =>
+      mala.categoria_id && !idsPermitidos.has(mala.categoria_id)
+        ? { ...mala, categoria_id: null, descricao: "" }
+        : mala
+    ))
+  }
 
   useEffect(() => {
     const valorBase = calcularTotalMalas(malas, categorias)
@@ -231,7 +246,7 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
               <CardTitle className="text-base">Malas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              <MalaForm malas={malas} categorias={categorias} onChange={setMalas} />
+              <MalaForm malas={malas} categorias={categoriasDisponiveis} onChange={setMalas} />
 
               <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-4">
                 <FormField
@@ -313,7 +328,7 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
             <CardContent className="space-y-3">
               <Select
                 value={parceiroId ?? "none"}
-                onValueChange={(v) => setParceiroId(v === "none" ? null : v)}
+                onValueChange={selecionarParceiro}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar parceiro..." />
