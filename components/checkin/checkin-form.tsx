@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { MalaForm } from "@/components/checkin/mala-form"
+import { PartnerQrScanner } from "@/components/checkin/partner-qr-scanner"
 import { realizarCheckin, MalaInput } from "@/lib/actions/checkin"
 import { calcularTotalMalas } from "@/lib/utils/checkin-price"
 import { calcularProgramaParceiro, categoriaPodeReceberDescontoParceiro } from "@/lib/utils/partner-program"
@@ -39,6 +40,7 @@ import type { CategoriaMala } from "@/lib/actions/categorias-mala"
 import type { Parceiro } from "@/lib/types"
 import { telefoneValido } from "@/lib/utils/telefone"
 import { FORMAS_PAGAMENTO, OPCOES_FORMA_PAGAMENTO } from "@/lib/utils/payment"
+import { encontrarParceiroAtivoPorCodigo } from "@/lib/utils/partner-referral"
 
 const checkinSchema = z.object({
   cliente_nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -59,15 +61,18 @@ type CheckinFormValues = z.infer<typeof checkinSchema>
 interface CheckinFormProps {
   parceirosIniciais: Parceiro[]
   categorias: CategoriaMala[]
+  codigoParceiroInicial?: string
 }
 
-export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps) {
+export function CheckinForm({ parceirosIniciais, categorias, codigoParceiroInicial }: CheckinFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [malas, setMalas] = useState<MalaInput[]>([
     { identificacao_interna: "A1", descricao: "", categoria_id: null },
   ])
-  const [parceiroId, setParceiroId] = useState<string | null>(null)
+  const [parceiroId, setParceiroId] = useState<string | null>(() =>
+    encontrarParceiroAtivoPorCodigo(parceirosIniciais, codigoParceiroInicial)?.id ?? null
+  )
 
   const form = useForm<CheckinFormValues>({
     resolver: zodResolver(checkinSchema),
@@ -326,6 +331,8 @@ export function CheckinForm({ parceirosIniciais, categorias }: CheckinFormProps)
               <CardTitle className="text-base">Parceiro <span className="text-muted-foreground font-normal text-sm">(opcional)</span></CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              <PartnerQrScanner parceiros={parceirosIniciais} onParceiroEncontrado={selecionarParceiro} />
+
               <Select
                 value={parceiroId ?? "none"}
                 onValueChange={selecionarParceiro}

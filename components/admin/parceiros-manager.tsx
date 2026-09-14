@@ -2,11 +2,12 @@
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { Edit3, Eye, Plus, Save } from "lucide-react"
+import { Edit3, Eye, Plus, QrCode, Save } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { ParceiroQrDialog } from "@/components/admin/parceiro-qr-dialog"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -83,6 +84,7 @@ export function ParceirosManager({ parceirosIniciais }: ParceirosManagerProps) {
   const [parceiros, setParceiros] = useState(parceirosIniciais)
   const [form, setForm] = useState<ParceiroInput>(emptyForm)
   const [editingId, setEditingId] = useState<string | undefined>()
+  const [qrParceiro, setQrParceiro] = useState<ParceiroDetalhado | null>(null)
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -141,7 +143,13 @@ export function ParceirosManager({ parceirosIniciais }: ParceirosManagerProps) {
                     <td className="px-4 py-3 font-mono text-xs">{parceiro.codigo_indicacao}</td>
                     <td className="px-4 py-3 text-xs">{parceiro.desconto_percentual}% desc. · {parceiro.comissao_percentual}% comissão · dia {parceiro.dia_repasse}</td>
                     <td className="px-4 py-3">{STATUS_LABEL[parceiro.status]}</td>
-                    <td className="px-4 py-3"><div className="flex justify-end gap-1"><Button variant="ghost" size="icon" asChild><Link href={`/admin/parceiros/${parceiro.id}`} aria-label="Abrir extrato"><Eye className="h-4 w-4" /></Link></Button><Button variant="ghost" size="icon" onClick={() => openEdit(parceiro)} aria-label="Editar parceiro"><Edit3 className="h-4 w-4" /></Button></div></td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => setQrParceiro(parceiro)} aria-label={`Abrir QR Code de ${parceiro.nome}`}><QrCode className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" asChild><Link href={`/admin/parceiros/${parceiro.id}`} aria-label="Abrir extrato"><Eye className="h-4 w-4" /></Link></Button>
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(parceiro)} aria-label="Editar parceiro"><Edit3 className="h-4 w-4" /></Button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -200,6 +208,12 @@ export function ParceirosManager({ parceirosIniciais }: ParceirosManagerProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ParceiroQrDialog
+        parceiro={qrParceiro}
+        open={Boolean(qrParceiro)}
+        onOpenChange={(nextOpen) => { if (!nextOpen) setQrParceiro(null) }}
+      />
     </div>
   )
 }

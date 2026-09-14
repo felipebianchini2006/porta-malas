@@ -6,6 +6,8 @@ Somente administradores podem criar e editar parceiros. O cadastro registra grup
 
 O código de indicação e o documento do parceiro são únicos. Somente parceiros ativos aparecem no check-in.
 
+Cada parceiro possui um QR Code gerado a partir do seu código de indicação. O administrador pode copiar a imagem, copiar o link ou baixar o PNG para compartilhar pelo WhatsApp. O QR não contém percentuais, PIX nem identificadores internos.
+
 ## Check-in indicado
 
 Todo check-in exige nome do cliente, CPF ou passaporte, telefone WhatsApp e lacre em cada mala. A operação é transacional.
@@ -20,6 +22,8 @@ Ao selecionar um parceiro, todas as malas precisam de categoria de preço. O sis
 - competência mensal.
 
 Esses campos são um snapshot. Uma mudança futura no cadastro do parceiro não altera check-ins antigos.
+
+O check-in aceita o link de indicação e permite ler o QR pela câmera ou por uma imagem salva. A leitura resolve o código contra os parceiros ativos, seleciona automaticamente o parceiro e mantém o cálculo financeiro existente. Código inexistente, inativo ou bloqueado não aplica benefício.
 
 ## Aceite das regras
 

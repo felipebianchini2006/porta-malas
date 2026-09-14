@@ -66,3 +66,7 @@ npm run lint
 npm run build
 docker compose config
 ```
+
+## Programa de parceiros
+
+O painel administrativo gera um QR Code para cada parceiro cadastrado. A imagem ou o link pode ser compartilhado por WhatsApp. No check-in, a câmera ou uma imagem salva identifica automaticamente somente parceiros ativos e aplica as regras já cadastradas de desconto e comissão.
