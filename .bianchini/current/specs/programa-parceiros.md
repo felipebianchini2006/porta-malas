@@ -23,7 +23,7 @@ Ao selecionar um parceiro, todas as malas precisam de categoria de preço. O sis
 
 Esses campos são um snapshot. Uma mudança futura no cadastro do parceiro não altera check-ins antigos.
 
-O check-in aceita o link de indicação e permite ler o QR pela câmera ou por uma imagem salva. A leitura resolve o código contra os parceiros ativos, seleciona automaticamente o parceiro e mantém o cálculo financeiro existente. Código inexistente, inativo ou bloqueado não aplica benefício.
+O check-in aceita o link de indicação e permite ler o QR pela câmera ou por uma imagem salva. No celular, o botão de câmera abre diretamente a câmera traseira e lê a foto capturada, sem exigir que o operador salve a foto e depois procure o arquivo na galeria. A leitura resolve o código contra os parceiros ativos, seleciona automaticamente o parceiro e mantém o cálculo financeiro existente. Código inexistente, inativo ou bloqueado não aplica benefício.
 
 ## Aceite das regras
 

@@ -5,6 +5,7 @@ import {
   criarLinkIndicacao,
   encontrarParceiroAtivoPorCodigo,
   extrairCodigoIndicacao,
+  obterAtributosCapturaQr,
 } from "../lib/utils/partner-referral.ts"
 
 const parceiroAtivo = {
@@ -34,4 +35,14 @@ test("seleciona somente parceiro ativo com código correspondente", () => {
   assert.equal(encontrarParceiroAtivoPorCodigo([parceiroAtivo], "HOS-POUSADA-SOL"), parceiroAtivo)
   assert.equal(encontrarParceiroAtivoPorCodigo([inativo], "HOS-POUSADA-SOL"), null)
   assert.equal(encontrarParceiroAtivoPorCodigo([parceiroAtivo], "CODIGO-INEXISTENTE"), null)
+})
+
+test("configura a entrada móvel para abrir diretamente a câmera traseira", () => {
+  assert.deepEqual(obterAtributosCapturaQr("camera"), {
+    accept: "image/*",
+    capture: "environment",
+  })
+  assert.deepEqual(obterAtributosCapturaQr("galeria"), {
+    accept: "image/*",
+  })
 })

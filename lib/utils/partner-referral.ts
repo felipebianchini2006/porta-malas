@@ -2,6 +2,15 @@ import type { Parceiro } from "@/lib/types"
 
 export const PARAMETRO_INDICACAO = "parceiro"
 
+export function obterAtributosCapturaQr(origem: "camera" | "galeria"): {
+  accept: "image/*"
+  capture?: "environment"
+} {
+  return origem === "camera"
+    ? { accept: "image/*", capture: "environment" }
+    : { accept: "image/*" }
+}
+
 export function normalizarCodigoIndicacao(value: string | null | undefined): string | null {
   const codigo = value?.trim()
   if (!codigo || codigo.length > 48 || /[\u0000-\u001f\u007f]/.test(codigo)) return null
