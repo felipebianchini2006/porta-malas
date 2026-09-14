@@ -1,0 +1,264 @@
+
+> porta-malas@0.1.0 test
+> node --test --experimental-strip-types tests/**/*.test.ts --test-name-pattern=configura a entrada móvel
+
+TAP version 13
+# (node:41854) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/acceptance-share.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: mensagem de check-in inclui link de aceite das regras
+ok 1 - mensagem de check-in inclui link de aceite das regras
+  ---
+  duration_ms: 7.814875
+  type: 'test'
+  ...
+# (node:41856) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/atendimento-delete.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: resolverDiretorioAtendimento limita a limpeza ao diretório UUID do atendimento
+ok 2 - resolverDiretorioAtendimento limita a limpeza ao diretório UUID do atendimento
+  ---
+  duration_ms: 1.601541
+  type: 'test'
+  ...
+# Subtest: confirmação exige o protocolo completo e exato
+ok 3 - confirmação exige o protocolo completo e exato
+  ---
+  duration_ms: 0.17075
+  type: 'test'
+  ...
+# (node:41857) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/checkin-price.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: soma automaticamente o preço de cada mala selecionada
+ok 4 - soma automaticamente o preço de cada mala selecionada
+  ---
+  duration_ms: 5.698917
+  type: 'test'
+  ...
+# Subtest: ignora malas sem categoria ou com categoria inexistente
+ok 5 - ignora malas sem categoria ou com categoria inexistente
+  ---
+  duration_ms: 1.275458
+  type: 'test'
+  ...
+# (node:41858) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/date-time.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: exibe timestamps no horário de São Paulo
+ok 6 - exibe timestamps no horário de São Paulo
+  ---
+  duration_ms: 94.740375
+  type: 'test'
+  ...
+# Subtest: gera a data e a segunda-feira conforme São Paulo, não conforme UTC
+ok 7 - gera a data e a segunda-feira conforme São Paulo, não conforme UTC
+  ---
+  duration_ms: 5.039625
+  type: 'test'
+  ...
+# (node:41859) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/export.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: gerarCSV preserva os dados principais
+ok 8 - gerarCSV preserva os dados principais
+  ---
+  duration_ms: 86.730208
+  type: 'test'
+  ...
+# Subtest: gerarExcel produz um arquivo XLSX válido
+ok 9 - gerarExcel produz um arquivo XLSX válido
+  ---
+  duration_ms: 244.83925
+  type: 'test'
+  ...
+# (node:41860) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/partner-export.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: exportação mensal de repasses gera XLSX com dados financeiros
+ok 10 - exportação mensal de repasses gera XLSX com dados financeiros
+  ---
+  duration_ms: 240.67175
+  type: 'test'
+  ...
+# (node:41861) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/partner-program.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: calcula desconto e comissão sobre o valor-base com arredondamento monetário
+ok 11 - calcula desconto e comissão sobre o valor-base com arredondamento monetário
+  ---
+  duration_ms: 19.876959
+  type: 'test'
+  ...
+# Subtest: arredonda cada efeito financeiro em centavos
+ok 12 - arredonda cada efeito financeiro em centavos
+  ---
+  duration_ms: 0.635625
+  type: 'test'
+  ...
+# Subtest: gera código estável e legível conforme o grupo
+ok 13 - gera código estável e legível conforme o grupo
+  ---
+  duration_ms: 0.527
+  type: 'test'
+  ...
+# Subtest: impede aplicar o programa sobre categoria com desconto de parceiro já embutido
+ok 14 - impede aplicar o programa sobre categoria com desconto de parceiro já embutido
+  ---
+  duration_ms: 9.016666
+  type: 'test'
+  ...
+# Subtest: classifica alertas de repasse pelos dias restantes
+ok 15 - classifica alertas de repasse pelos dias restantes
+  ---
+  duration_ms: 0.554958
+  type: 'test'
+  ...
+# (node:41862) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/partner-referral.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: gera link de indicação sem expor dados financeiros ou identificador interno
+ok 16 - gera link de indicação sem expor dados financeiros ou identificador interno
+  ---
+  duration_ms: 6.924167
+  type: 'test'
+  ...
+# Subtest: extrai o código de URL, protocolo BagPoint ou conteúdo puro
+ok 17 - extrai o código de URL, protocolo BagPoint ou conteúdo puro
+  ---
+  duration_ms: 0.685959
+  type: 'test'
+  ...
+# Subtest: seleciona somente parceiro ativo com código correspondente
+ok 18 - seleciona somente parceiro ativo com código correspondente
+  ---
+  duration_ms: 3.740458
+  type: 'test'
+  ...
+# Subtest: configura a entrada móvel para abrir diretamente a câmera traseira
+not ok 19 - configura a entrada móvel para abrir diretamente a câmera traseira
+  ---
+  duration_ms: 3.312083
+  type: 'test'
+  location: '/Users/felipebianchini/Developer/porta-malas/tests/partner-referral.test.ts:40:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      {
+        accept: 'image/*',
+    -   capture: 'environment'
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    accept: 'image/*'
+    capture: 'environment'
+  actual:
+    accept: 'image/*'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/felipebianchini/Developer/porta-malas/tests/partner-referral.test.ts:41:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# (node:41863) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/password.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: hashPassword cria hash scrypt verificável sem armazenar a senha
+ok 20 - hashPassword cria hash scrypt verificável sem armazenar a senha
+  ---
+  duration_ms: 424.464875
+  type: 'test'
+  ...
+# Subtest: verifyPassword rejeita senha errada e formato inválido
+ok 21 - verifyPassword rejeita senha errada e formato inválido
+  ---
+  duration_ms: 281.410917
+  type: 'test'
+  ...
+# Subtest: hashPassword rejeita senha curta
+ok 22 - hashPassword rejeita senha curta
+  ---
+  duration_ms: 1.026375
+  type: 'test'
+  ...
+# (node:41864) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/payment.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: aceita apenas as quatro formas de pagamento do contrato
+ok 23 - aceita apenas as quatro formas de pagamento do contrato
+  ---
+  duration_ms: 1.105125
+  type: 'test'
+  ...
+# Subtest: registros antigos sem pagamento aparecem como não informado
+ok 24 - registros antigos sem pagamento aparecem como não informado
+  ---
+  duration_ms: 0.172584
+  type: 'test'
+  ...
+# (node:41865) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/photo-share.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: nomeia cada arquivo compartilhado com o lacre da mala
+ok 25 - nomeia cada arquivo compartilhado com o lacre da mala
+  ---
+  duration_ms: 8.093792
+  type: 'test'
+  ...
+# Subtest: mensagem lista protocolo e lacres sem repetir identificadores
+ok 26 - mensagem lista protocolo e lacres sem repetir identificadores
+  ---
+  duration_ms: 1.2345
+  type: 'test'
+  ...
+# (node:41866) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/felipebianchini/Developer/porta-malas/tests/telefone.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/felipebianchini/Developer/porta-malas/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: mantém números internacionais sem adicionar o código do Brasil
+ok 27 - mantém números internacionais sem adicionar o código do Brasil
+  ---
+  duration_ms: 3.250083
+  type: 'test'
+  ...
+# Subtest: mantém compatibilidade com números brasileiros antigos
+ok 28 - mantém compatibilidade com números brasileiros antigos
+  ---
+  duration_ms: 4.420542
+  type: 'test'
+  ...
+# Subtest: rejeita telefone sem tamanho internacional válido
+ok 29 - rejeita telefone sem tamanho internacional válido
+  ---
+  duration_ms: 7.259459
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 28
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2486.863
+
