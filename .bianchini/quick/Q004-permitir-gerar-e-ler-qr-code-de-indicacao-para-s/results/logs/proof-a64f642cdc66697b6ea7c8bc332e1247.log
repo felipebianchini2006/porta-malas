@@ -1,0 +1,51 @@
+
+> porta-malas@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.24
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 2.1s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/17) ...
+   Generating static pages (4/17) 
+   Generating static pages (8/17) 
+   Generating static pages (12/17) 
+ ✓ Generating static pages (17/17)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      141 B         103 kB
+├ ○ /_not-found                            995 B         104 kB
+├ ƒ /aceite/[token]                       3.1 kB         112 kB
+├ ƒ /admin/categorias                    4.74 kB         137 kB
+├ ƒ /admin/parceiros                      8.2 kB         163 kB
+├ ƒ /admin/parceiros/[id]                  165 B         106 kB
+├ ƒ /admin/repasses                       4.7 kB         156 kB
+├ ƒ /admin/usuarios                      5.24 kB         157 kB
+├ ƒ /api/export                            141 B         103 kB
+├ ƒ /api/export/parceiros                  141 B         103 kB
+├ ƒ /api/health                            141 B         103 kB
+├ ƒ /api/uploads                           141 B         103 kB
+├ ƒ /api/uploads/[...path]                 141 B         103 kB
+├ ƒ /checkin                             32.2 kB         184 kB
+├ ƒ /checkin/[id]                        4.62 kB         133 kB
+├ ƒ /dashboard                           17.8 kB         131 kB
+├ ○ /login                               2.68 kB         118 kB
+├ ƒ /relatorio                           6.35 kB         139 kB
+├ ƒ /relatorio/parceiros                 3.26 kB         113 kB
+└ ƒ /retirada                            6.48 kB         125 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/255-c5a697ddbf82d774.js       46.4 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  └ other shared chunks (total)          2.02 kB
+
+
+ƒ Middleware                             34.5 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
