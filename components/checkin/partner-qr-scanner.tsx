@@ -61,6 +61,8 @@ export function PartnerQrScanner({ parceiros, onParceiroEncontrado }: PartnerQrS
         ref={cameraInputRef}
         className="sr-only"
         type="file"
+        aria-hidden="true"
+        tabIndex={-1}
         {...obterAtributosCapturaQr("camera")}
         onChange={(event) => {
           void lerImagem(event.target.files?.[0])
@@ -71,6 +73,8 @@ export function PartnerQrScanner({ parceiros, onParceiroEncontrado }: PartnerQrS
         ref={galleryInputRef}
         className="sr-only"
         type="file"
+        aria-hidden="true"
+        tabIndex={-1}
         {...obterAtributosCapturaQr("galeria")}
         onChange={(event) => {
           void lerImagem(event.target.files?.[0])
