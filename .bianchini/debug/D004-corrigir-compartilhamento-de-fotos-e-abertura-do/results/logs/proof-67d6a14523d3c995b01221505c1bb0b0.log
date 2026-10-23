@@ -1,0 +1,18 @@
+
+Traceback (most recent call last):
+  File "/Users/felipebianchini/Developer/porta-malas/tests/checkin-sharing.browser.py", line 89, in <module>
+    asyncio.run(run())
+    ~~~~~~~~~~~^^^^^^^
+  File "/Users/felipebianchini/.local/share/mise/installs/python/3.13.13/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Users/felipebianchini/.local/share/mise/installs/python/3.13.13/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/felipebianchini/.local/share/mise/installs/python/3.13.13/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/felipebianchini/Developer/porta-malas/tests/checkin-sharing.browser.py", line 52, in run
+    assert calls[0]["active"] and calls[0]["delay"] < 1000, "SHARE_LOST_USER_ACTIVATION"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SHARE_LOST_USER_ACTIVATION

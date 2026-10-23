@@ -1,0 +1,4 @@
+[prova aprovada: últimas linhas de cada saída; saída completa em .bianchini/.runtime/logs/proof-31a868fa811b213fd22ea46f5a93740d.log na máquina que executou]
+--- stdout
+PASS chromium: ativação, arquivo/lacre, erro, cancelamento, download, confirmação
+PASS webkit: ativação, arquivo/lacre, erro, cancelamento, download, confirmação
