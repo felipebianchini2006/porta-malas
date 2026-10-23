@@ -70,3 +70,11 @@ docker compose config
 ## Programa de parceiros
 
 O painel administrativo gera um QR Code para cada parceiro cadastrado. A imagem ou o link pode ser compartilhado por WhatsApp. No check-in, a câmera ou uma imagem salva identifica automaticamente somente parceiros ativos e aplica as regras já cadastradas de desconto e comissão.
+
+## Fotos e confirmação no check-in
+
+As cópias com o lacre são preparadas assim que as fotos ficam disponíveis. O botão **Compartilhar agora** só é habilitado quando os arquivos estão prontos. A abertura nativa ocorre no clique, conforme a exigência de ativação do [Web Share](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share).
+
+Se o navegador não permitir compartilhar arquivos, cada foto também pode ser baixada pelo seu link. Depois, use **Abrir conversa no WhatsApp** para anexar as fotos. O envio da confirmação abre o WhatsApp na mesma aba, sem exigir pop-up. A mensagem mantém o protocolo e o link de aceite das regras.
+
+A regressão de navegador está em `tests/checkin-sharing.browser.py`. Execute em um ambiente com banco exclusivo de QA, um check-in de protocolo `QA-D004`, uma foto de lacre `QA-LACRE` e Playwright para Python com Chromium e WebKit. Defina `CHECKIN_URL`, `QA_EMAIL` e `QA_PASSWORD`. O teste intercepta o WhatsApp e não envia mensagens. Para build de produção, use HTTPS também no ambiente de teste por causa do cookie seguro.

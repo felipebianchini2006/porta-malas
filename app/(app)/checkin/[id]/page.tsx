@@ -162,7 +162,7 @@ export default async function CheckinConfirmacaoPage({ params }: PageProps) {
       {/* Actions */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button asChild className="flex-1 bg-green-600 hover:bg-green-700">
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+          <a href={whatsappLink} rel="noreferrer">
             <MessageCircle className="h-4 w-4 mr-2" />
             Enviar Confirmação via WhatsApp
           </a>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Loader2, Share2 } from "lucide-react"
+import { Loader2, Share2, MessageCircle } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -88,17 +88,47 @@ export function CompartilharFotos({
   protocolo,
   whatsappLink,
 }: CompartilharFotosProps) {
-  const [preparando, setPreparando] = useState(false)
-  const [arquivos, setArquivos] = useState<File[] | null>(null)
-  const fotosKey = fotos.map((foto) => `${foto.url}:${foto.lacre}`).join("|")
+  const [enviando, setEnviando] = useState(false)
+  const [tentativa, setTentativa] = useState(0)
+  const [erro, setErro] = useState<string | null>(null)
+  const [preparadas, setPreparadas] = useState<{
+    key: string
+    arquivos: { file: File; url: string; lacre: string }[]
+  } | null>(null)
+  const fotosKey = JSON.stringify(fotos)
+  const arquivos = preparadas?.key === fotosKey ? preparadas.arquivos : null
+  const preparando = !arquivos && !erro
 
-  useEffect(() => setArquivos(null), [fotosKey])
+  useEffect(() => {
+    let cancelado = false
+    const urls: string[] = []
+    setPreparadas(null)
+    setErro(null)
+    const atuais: FotoCompartilhavel[] = JSON.parse(fotosKey)
+
+    Promise.all(atuais.map(gerarFotoCompartilhavel)).then((files) => {
+      if (cancelado) return
+      const arquivos = files.map((file, index) => {
+        const url = URL.createObjectURL(file)
+        urls.push(url)
+        return { file, url, lacre: atuais[index].lacre }
+      })
+      setPreparadas({ key: fotosKey, arquivos })
+    }).catch((error: unknown) => {
+      if (!cancelado) setErro(error instanceof Error ? error.message : "Não foi possível preparar as fotos")
+    })
+
+    return () => {
+      cancelado = true
+      urls.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [fotosKey, tentativa])
 
   async function compartilhar() {
-    setPreparando(true)
+    if (!arquivos || enviando) return
+    setEnviando(true)
     try {
-      const files = arquivos ?? await Promise.all(fotos.map(gerarFotoCompartilhavel))
-      setArquivos(files)
+      const files = arquivos.map(({ file }) => file)
       const text = mensagemCompartilhamentoFotos(
         clienteNome,
         protocolo,
@@ -106,25 +136,20 @@ export function CompartilharFotos({
       )
       const shareData: ShareData = { title: `Fotos ${protocolo}`, text, files }
 
-      if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+      // Arquivos já preparados: a chamada nativa acontece no próprio clique.
+      if (navigator.share && navigator.canShare?.({ files })) {
         await navigator.share(shareData)
         toast.success("Fotos abertas para compartilhamento")
         return
       }
 
       baixarArquivos(files)
-      window.open(whatsappLink, "_blank", "noopener,noreferrer")
-      toast.info("Fotos baixadas. Anexe os arquivos na conversa aberta do WhatsApp.")
+      toast.info("Fotos baixadas. Toque em Abrir conversa no WhatsApp e anexe os arquivos.")
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return
-      if (error instanceof DOMException && error.name === "NotAllowedError") {
-        toast.info("Toque novamente para abrir o compartilhamento.")
-        return
-      }
-      console.error("Erro ao compartilhar fotos:", error)
-      toast.error(error instanceof Error ? error.message : "Não foi possível compartilhar as fotos")
+      toast.error("O navegador não abriu o compartilhamento. Baixe as fotos abaixo e anexe na conversa do WhatsApp.")
     } finally {
-      setPreparando(false)
+      setEnviando(false)
     }
   }
 
@@ -140,13 +165,41 @@ export function CompartilharFotos({
         <Button
           type="button"
           onClick={compartilhar}
-          disabled={preparando || fotos.length === 0}
+          disabled={preparando || enviando || !!erro || fotos.length === 0}
           className="bg-green-600 text-white hover:bg-green-700"
         >
-          {preparando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-          {preparando ? "Preparando..." : arquivos ? "Compartilhar agora" : "Compartilhar fotos"}
+          {preparando || enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+          {preparando ? "Preparando fotos..." : enviando ? "Compartilhando..." : "Compartilhar agora"}
         </Button>
       </div>
+      {erro && (
+        <div className="mt-3 space-y-2" role="alert">
+          <p className="text-sm text-red-700">{erro}</p>
+          <Button type="button" variant="outline" onClick={() => setTentativa((value) => value + 1)}>
+            Tentar preparar novamente
+          </Button>
+        </div>
+      )}
+      {arquivos && (
+        <div className="mt-3 space-y-2">
+          <p className="text-xs text-green-800">
+            Se o compartilhamento não abrir, baixe as fotos e anexe na conversa do WhatsApp.
+          </p>
+          <div className="flex flex-col gap-2">
+            {arquivos.map(({ file, url, lacre }, index) => (
+              <a key={`${file.name}:${index}`} href={url} download={file.name} className="break-words text-sm text-green-900 underline">
+                Baixar foto {index + 1} — lacre {lacre}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+      <Button asChild variant="outline" className="mt-3 w-full sm:w-auto">
+        <a href={whatsappLink} rel="noreferrer">
+          <MessageCircle className="h-4 w-4" />
+          Abrir conversa no WhatsApp
+        </a>
+      </Button>
     </div>
   )
 }
